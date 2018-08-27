@@ -5,7 +5,7 @@
 
             <header class="col-11 col-md-10 col-lg-6 m-auto p-lg-4">
 
-                <heading class="event__title text--dark text--serif">{{ event.title }}</heading>
+                <heading class="event__title text--dark text--serif" v-html="event.title"></heading>
 
                 <span class="event__time text--dark">
                     {{event.start_date | moment("dddd, MMMM Do YYYY h:mm a")}} &mdash;

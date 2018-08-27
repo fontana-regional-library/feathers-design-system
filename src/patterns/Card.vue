@@ -33,8 +33,8 @@
 
             <heading :class="[{'text--serif': isDeck}, headingClass ? headingClass : 'card__heading']"
                      :level="headingLevel"
-                     v-if="heading">
-                {{ heading }}
+                     v-if="heading"
+                     v-html="heading">
             </heading>
 
              <heading :class="[subheadingClass ? subheadingClass : 'card__subheading mt-2']"
