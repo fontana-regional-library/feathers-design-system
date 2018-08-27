@@ -22,7 +22,7 @@
                     </div>
 
                     <div class="card__badge__explainer text--extra-small text--right" v-if="explainer">
-                        {{ explainer }} <br>
+                        {{ explainer | moment("ddd, MMM D - h:mm a") }} <br>
 
                         <div class="card__badge__sub-explainer" v-if="subExplainer">{{ subExplainer }}</div>
                     </div>
@@ -64,7 +64,9 @@
 
 <script>
 import Heading from "../elements/Heading.vue";
-
+import Vue from "vue";
+import VueMoment from "vue-moment";
+Vue.use(VueMoment);
 export default {
   name: "Card",
 
