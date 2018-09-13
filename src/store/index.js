@@ -112,7 +112,7 @@ export default new Vuex.Store({
     getUpcomingEvents({ commit }) {
       return new Promise(resolve => {
         axios
-          .get("http://fontana.local/wp-json/tribe/events/v1/events")
+          .get("http://fontana.local/wp-json/tribe/events/v1/events?per_page=20")
           .then(({ data }) => {
             commit("addEventsToState", data.events);
             resolve();
@@ -182,7 +182,12 @@ export default new Vuex.Store({
 
       if (locationName && locationName !== 'all') {
         eventsFilteredByLocation = events.filter(
-          event => event.venue.slug === locationName
+          event => 
+            event.location
+              ? event.location.some(
+              location => location.slug === locationName,
+              )
+              : [],
         );
       }
 
