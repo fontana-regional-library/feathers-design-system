@@ -1,7 +1,7 @@
 <template>
 
     <footer class="align-items-start d-md-flex justify-content-center justify-content-md-between p-3">
-
+<!--
         <div class="col-md-6 col-xl-4 pl-0 pr-0 pt-md-3 mb-3">
 
             <card class="card--background-blue-dark mb-3"
@@ -26,24 +26,55 @@
             <Search class="col" container-class="" :search-action="$route.name"/>
 
         </div>
+--> 
+        <!-- Footer menu: only one dropdown level anticipated -->
+        <nav class="d-flex flex-wrap menu menu--footer p-3" role="navigation">
 
-        <nav class="col-md d-xl-flex flex-wrap menu menu--footer p-0 p-md-3" role="navigation">
+            <div class="p-0" v-for="item in menuList.items">
 
-            <div class="col-xl-4 p-0 pl-xl-2 pr-xl-2"
-                 v-for="item in menuItems">
+                <!-- Top-level menu items with children generate dropdown with no click available -->
+                <div class="p-2" v-if="menuParent(menuList.items,item)">
+                    <Dropdown button-class="d-none d-md-block menu__item menu__item--location nav-link text--ellipsis text--nowrap text--white"
+                            class="align-self-center nav-item"
+                            dropdown-menu-class="text--nowrap text--right"
+                            label-class="menu__item__label">
+                        <template slot="label">{{ item.title }}</template>                        
+                        <template slot="items">
+                            <router-link
+                            class="d-block dropdown__menu__item link link--undecorated mb-1 mt-1 text--underlined"
+                            :key="subMenu.ID"
+                            :to="`${getUrl(subMenu)}`"
+                            v-for="subMenu in menuLoad(menuList.items,item.ID)">
+                                {{ subMenu.title }}
+                            </router-link>
+                        </template>
+                    </Dropdown>
+                </div>
 
-                <router-link class="background--blue-alternate d-block link link--undecorated mb-3 p-4 menu__item"
-                             :to="item.url">
-
-                    <span class="menu__item__label text--white">
-                        {{ item.title }}
-                    </span>
-
-                </router-link>
+                <!-- Top level menu items with no children have no dropdown but are clickable -->
+                <div class="p-2" v-else-if="item.menu_item_parent == '0'">               
+                    <router-link class="d-block link link--undecorated mb-3 p-2 menu__item"
+                            :to="`${getUrl(item)}`">
+                        <span class="menu__item__label text--white">
+                            {{ item.title }}
+                        </span>
+                    </router-link>
+                </div>
 
             </div>
 
         </nav>
+
+        <div class="d-flex">
+            <span>
+	            <a href="https://fontanalib.wordpress.com/" target="_blank"><img alt="Subscribe to our blog" src="http://www.fontanalib.org/sites/default/files/default_images/wp.png" style="width: 32px; height: 32px;margin-bottom: 3px;" /></a>
+	            <a href="https://www.facebook.com/fontanalib" target="_blank"><img alt="Like us on Facebook" src="http://www.fontanalib.org/sites/default/files/default_images/fb.png" style="width: 32px; height: 32px;margin-bottom: 3px;" /></a>
+	            <a href="https://www.youtube.com/user/FontanaRegLibrary" target="_blank"><img alt="Subscribe to our YouTube Channel" src="http://www.fontanalib.org/sites/default/files/default_images/yt.png" style="width: 32px; height: 32px; margin-bottom: 3px;" /></a>
+	            <a href="https://twitter.com/fontanalib" target="_blank"><img alt="Follow us on Twitter" src="http://www.fontanalib.org/sites/default/files/default_images/tw.png" style="width: 32px; height: 32px; margin-bottom: 3px;" /></a>
+	            <a href="https://www.instagram.com/fontanalib/" target="_blank"><img alt="Follow us on instagram" src="http://www.fontanalib.org/sites/default/files/default_images/inst.png" style="width: 32px; height: 32px; margin-bottom: 3px;" /></a>
+	            <a href="http://fontanalib.tumblr.com/" target="_blank"><img alt="Follow us on Tumblr" src="http://www.fontanalib.org/sites/default/files/default_images/tu.png" style="width: 32px; height: 32px; margin-bottom: 3px;" /></a>
+            </span>
+        </div>
 
     </footer>
 
@@ -61,11 +92,61 @@ export default {
     Search,
   },
 
+  computed: {
+    menuList() {
+      return this.$store.state.menuItems;
+    },
+  },
+
+  methods: {
+    /**
+     * Links to pages on Wordpress menus are complete URLs but just need slug stripped off to be consistent
+     */
+    getUrl(item) {
+        var url = item.url;
+        var end = url.length;
+        var start = 0;
+        if (item.object == 'page') {
+            if (end > 0) {
+                if (url.lastIndexOf('/') == end-1) {
+                    end -= 1;
+                    url = url.substring(0,end);
+                }
+                start = url.lastIndexOf('/');
+                if (start != -1) {
+                    url = '/page' + url.substring(start,end);
+                }
+            }
+        }
+        return url;
+    },
+
+    menuParent(list,item) {
+        var i;
+        for (i = list.length; i > 0 && list[i-1].menu_item_parent != item.ID; i--);
+        return i > 0;
+    },
+
+    menuLoad(list,id) {
+        var i = 0;
+        var menuSub = [];
+        for (i = 0; i < list.length; i++) {
+            if (list[i].menu_item_parent == "5762") {
+                menuSub.push(list[i]);
+            }
+        }
+        return menuSub;
+    },
+  },
+ 
   props: {
     /**
      * An array of menu items that include `title` and `url` properties.
      */
     menuItems: {
+      type: Array,
+    },
+    menuSub: {
       type: Array,
     },
 

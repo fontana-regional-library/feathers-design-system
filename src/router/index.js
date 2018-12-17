@@ -6,6 +6,7 @@ import Event from "../templates/Event.vue";
 import Events from "../templates/Events.vue";
 import Index from "../templates/Index.vue";
 import NotFound from "../templates/NotFound.vue";
+import Page from '../templates/Page.vue';
 import SearchResults from "../templates/SearchResults.vue";
 import Service from '../templates/Service.vue';
 import Services from "../templates/Services.vue";
@@ -34,6 +35,15 @@ const router = new Router({
         `,
         network: 'blog',
         slug: 'any',
+      }),
+    },
+    
+    {
+      component: Page,
+      path: "/page/:slug",
+      props: route => ({
+        pageObject: router.app.$store.getters.getPageBySlug(route.params.slug),
+        location: route.query.location,
       }),
     },
 

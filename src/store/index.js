@@ -10,12 +10,13 @@ callsToAction: 'https://fontana.librarians.design/wp-json/wp/v2/calls-to-action'
 collection: 'https://fontana.librarians.design/wp-json/wp/v2/collection?_embed',
 featuredCollections: 'https://fontana.librarians.design/wp-json/wp/v2/featured-collections',
 locations: 'https://fontana.librarians.design/wp-json/wp/v2/locations',
-pages: 'https://fontana.librarians.design/wp-json/wp/v2/pages',
+pages: 'https://fontana.librarians.design/wp-json/wp/v2/pages?per_page=100',
 posts: 'https://public-api.wordpress.com/rest/v1.1/sites/fontanalib.wordpress.com/posts/?number=10',
 articles: 'https://fontana.librarians.design/wp-json/wp/v2/posts',
 resources: 'https://fontana.librarians.design/wp-json/wp/v2/resources',
 services: 'https://fontana.librarians.design/wp-json/wp/v2/services?per_page=50',
 events: 'https://fontana.librarians.design/wp-json/wp/v2/events',
+menuItems: 'https://fontana.librarians.design/wp-json/menus/v1/menus/top',
 };
 
 export default new Vuex.Store({
@@ -32,6 +33,7 @@ export default new Vuex.Store({
     articles: [],
     resources: [],
     services: [],
+    menuItems: [],
     eventCount: 0,
   },
 
@@ -143,6 +145,17 @@ export default new Vuex.Store({
       });
     },
 
+    getMenuItems({ commit }) {
+      return new Promise(resolve => {
+        axios
+          .get(urls.menuItems)
+          .then(({ data }) => {
+            commit("addMenuItemsToState", data);
+            resolve();
+          });
+      });
+    },
+
     getUpcomingEvents({ commit }) {
       return new Promise(resolve => {
         axios
@@ -239,6 +252,10 @@ export default new Vuex.Store({
       return Number(state.eventCount);
     },
 
+    getPageBySlug: state => slug => state.pages.find(page => page.slug === slug),
+
+    getPageById: state => menuItemId => state.pages.find(page => page.url === menuItemId),
+
     /**
      * We can use `getRandomContentItem(services)` -- for example -- to return
      * a random service.
@@ -321,6 +338,10 @@ export default new Vuex.Store({
 
     addServicesToState(state, services) {
       state.services = services;
+    },
+
+    addMenuItemsToState(state, menuItems) {
+      state.menuItems = menuItems;
     },
 
     addMoreContent(state, payload) {
