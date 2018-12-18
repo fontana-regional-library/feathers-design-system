@@ -113,6 +113,7 @@ export default new Vuex.Store({
           });
       });
     },
+
     getArticles({ commit }) {
       return new Promise(resolve => {
         axios
@@ -123,6 +124,7 @@ export default new Vuex.Store({
           });
       });
     },
+
     getResources({ commit }) {
       return new Promise(resolve => {
         axios
@@ -169,7 +171,6 @@ export default new Vuex.Store({
     },
 
     getMoreContent({commit}, serviceQuery) {
-  
       return new Promise(resolve => {
         axios
           .get(urls[serviceQuery.contentType] + serviceQuery.urlParams)
@@ -195,6 +196,7 @@ export default new Vuex.Store({
 
       return actionsByService;
     },
+
     getContentByService: state => (contentType, serviceName = null, locationName = null) => {
       let contents;
       let contentsFilteredByService = [];
@@ -252,10 +254,6 @@ export default new Vuex.Store({
       return Number(state.eventCount);
     },
 
-    getPageBySlug: state => slug => state.pages.find(page => page.slug === slug),
-
-    getPageById: state => menuItemId => state.pages.find(page => page.url === menuItemId),
-
     /**
      * We can use `getRandomContentItem(services)` -- for example -- to return
      * a random service.
@@ -308,17 +306,17 @@ export default new Vuex.Store({
     },
 
     addArticlesToState(state, articles) {
-
       state.articles = articles;
     },
 
+    addEventToState(state, event) {
+      state.events.push(event);
+    },
+  
     addEventsToState(state, events) {
       state.events = events;
     },
-    addEventCount(state, eventCount) {
-      state.eventCount = eventCount;
-    },
-
+    
     addEventCount(state, eventCount) {
       state.eventCount = eventCount;
     },
@@ -336,6 +334,10 @@ export default new Vuex.Store({
       state.resources = resources;
     },
 
+    addServiceToState(state, service) {
+      state.services.push(service);
+    },
+  
     addServicesToState(state, services) {
       state.services = services;
     },

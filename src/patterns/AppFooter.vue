@@ -131,7 +131,7 @@ export default {
         var i = 0;
         var menuSub = [];
         for (i = 0; i < list.length; i++) {
-            if (list[i].menu_item_parent == "5762") {
+            if (list[i].menu_item_parent == id) {
                 menuSub.push(list[i]);
             }
         }
