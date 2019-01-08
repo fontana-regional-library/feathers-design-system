@@ -273,6 +273,8 @@ export default new Vuex.Store({
       ];
     },
 
+    getPageBySlug: state => slug => state.pages.find(page => page.slug === slug),
+
     getServiceBySlug: state => slug => state.services.find(service => service.slug === slug),
   },
 

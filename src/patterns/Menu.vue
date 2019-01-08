@@ -61,7 +61,7 @@
                  :key="location.id"
                  :to="setLocationInQueryParameter(`${location.slug}`)"
                  v-for="location in locations">
-                    {{ location.name }} ({{ location.city }})
+                    {{ location.name }} ({{ location.acf.city }})
                 </router-link>
             </template>
         </Dropdown>

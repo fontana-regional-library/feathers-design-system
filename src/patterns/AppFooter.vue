@@ -1,32 +1,28 @@
 <template>
 
     <footer class="align-items-start d-md-flex justify-content-center justify-content-md-between p-3">
-<!--
+
         <div class="col-md-6 col-xl-4 pl-0 pr-0 pt-md-3 mb-3">
 
             <card class="card--background-blue-dark mb-3"
-                  heading="Jackson County Public Library"
+                  :heading="currentLocation.name"
                   subheading="Fontana Regional Library"
                   subheading-class="h4 mt-0 text--white"
-                  v-if="location">
+                  v-if="currentLocation">
 
                 <template slot="copy">
-                    828-586-2016
-
-                    County Librarian: Tracy Fitzmaurice
-                    location_on310 Keener Street
-                    Sylva, NC 28779
-
-                    Fax: 828-631-2943
-                    Hours and address will be here if location / phone number
+                    {{currentLocation.acf.phone}} <br><br>
+                    {{currentLocation.acf.librarian}} <br>
+                    {{currentLocation.acf.address}} <br>
+                    {{currentLocation.acf.city}}, {{currentLocation.acf.state}} {{currentLocation.acf.zip}} <br><br>
+                    Fax: {{currentLocation.acf.fax}}
                 </template>
 
             </card>
 
-            <Search class="col" container-class="" :search-action="$route.name"/>
-
         </div>
---> 
+
+
         <!-- Footer menu: only one dropdown level anticipated -->
         <nav class="d-flex flex-wrap menu menu--footer p-3" role="navigation">
 
@@ -34,7 +30,7 @@
 
                 <!-- Top-level menu items with children generate dropdown with no click available -->
                 <div class="p-2" v-if="menuParent(menuList.items,item)">
-                    <Dropdown button-class="d-none d-md-block menu__item menu__item--location nav-link text--ellipsis text--nowrap text--white"
+                    <Dropdown button-class="menu__item menu__item--location nav-link text--ellipsis text--nowrap text--white"
                             class="align-self-center nav-item"
                             dropdown-menu-class="text--nowrap text--right"
                             label-class="menu__item__label">
@@ -96,6 +92,11 @@ export default {
     menuList() {
       return this.$store.state.menuItems;
     },
+
+    currentLocation() {
+      const locationSlugInUrl = this.$route.query.location;
+      return this.$store.state.locations.find(location => location.slug === locationSlugInUrl);
+    },
   },
 
   methods: {
@@ -139,6 +140,10 @@ export default {
     },
   },
  
+  mounted() {
+    this.$store.dispatch('getLocations');
+  },
+
   props: {
     /**
      * An array of menu items that include `title` and `url` properties.
