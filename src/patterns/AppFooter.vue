@@ -35,12 +35,15 @@
                             dropdown-menu-class="text--nowrap text--right"
                             label-class="menu__item__label">
                         <template slot="label">{{ item.title }}</template>                        
-                        <template slot="items">
-                            <router-link
-                            class="d-block dropdown__menu__item link link--undecorated mb-1 mt-1 text--underlined"
-                            :key="subMenu.ID"
-                            :to="`${getUrl(subMenu)}`"
-                            v-for="subMenu in menuLoad(menuList.items,item.ID)">
+                        <template slot="items"
+                                v-for="subMenu in menuLoad(menuList.items,item.ID)">
+                            <a v-if="subMenu.target === '_blank'" :href="subMenu.url" target="_blank">
+                                {{ subMenu.title }}
+                            </a>
+                            <router-link v-else
+                                    class="d-block dropdown__menu__item link link--undecorated mb-1 mt-1 text--underlined"
+                                    :key="subMenu.ID"
+                                    :to="`${getUrl(subMenu)}`">                            
                                 {{ subMenu.title }}
                             </router-link>
                         </template>
@@ -48,8 +51,11 @@
                 </div>
 
                 <!-- Top level menu items with no children have no dropdown but are clickable -->
-                <div class="p-2" v-else-if="item.menu_item_parent == '0'">               
-                    <router-link class="d-block link link--undecorated mb-3 p-2 menu__item"
+                <div class="p-2" v-else-if="item.menu_item_parent == '0'">  
+                    <a v-if="item.target === '_blank'" :href="item.url" target="_blank">
+                        {{ item.title }}
+                    </a>                            
+                    <router-link v-else class="d-block link link--undecorated mb-3 p-2 menu__item"
                             :to="`${getUrl(item)}`">
                         <span class="menu__item__label text--white">
                             {{ item.title }}
