@@ -101,7 +101,7 @@
 
                             <template v-for="item in collection">
 
-                                <collection-item class="card--background-blue-dark col-md-6 col-xl-8 mb-xl-0"
+                                <collection-item class="card--background-blue-dark"
                                                  :item="item"
                                                  heading-level="h3"
                                                  :key="item.id"
@@ -145,7 +145,7 @@ export default {
 
   computed: {
     callsToAction() {
-      const serviceCTA = this.$store.getters.getContentByService(
+      let serviceCTA = this.$store.getters.getContentByService(
         'callsToAction',
         this.serviceObject.slug,
         this.location,
@@ -153,12 +153,17 @@ export default {
       if (serviceCTA.length > 0) {
         return serviceCTA;
       }
-      const serviceQuery = { urlParams: `?services=${this.serviceObject.id}`, contentType: 'callsToAction' };
-      return this.$store.dispatch(`getMoreContent`, serviceQuery);
+      let serviceQuery = { urlParams: `services=${this.serviceObject.id}`, contentType: 'callsToAction' };
+      this.$store.dispatch(`getMoreContent`, serviceQuery);
+      return this.$store.getters.getContentByService(
+        'callsToAction',
+        this.serviceObject.slug,
+        this.location,
+      );
     },
 
     collection() {
-      const serviceCollections = this.$store.getters.getContentByService(
+      let serviceCollections = this.$store.getters.getContentByService(
         'collection',
         this.serviceObject.slug,
         this.location,
@@ -167,12 +172,17 @@ export default {
       if (serviceCollections.length > 0) {
         return serviceCollections;
       }
-      const serviceQuery = { urlParams: `&services=${this.serviceObject.id}`, contentType: 'collection' };
-      return this.$store.dispatch('getMoreContent', serviceQuery);
+      let serviceQuery = { urlParams: `services=${this.serviceObject.id}`, contentType: 'collection' };
+      this.$store.dispatch('getMoreContent', serviceQuery);
+      return this.$store.getters.getContentByService(
+        'collection',
+        this.serviceObject.slug,
+        this.location,
+      );
     },
 
     articles() {
-      const serviceArticles = this.$store.getters.getContentByService(
+      let serviceArticles = this.$store.getters.getContentByService(
         'articles',
         this.serviceObject.slug,
         this.location,
@@ -182,12 +192,17 @@ export default {
         return serviceArticles;
       }
 
-      const serviceQuery = { urlParams: `&services=${this.serviceObject.id}`, contentType: 'articles' };
-      return this.$store.dispatch('getMoreContent', serviceQuery);
+      let serviceQuery = { urlParams: `services=${this.serviceObject.id}`, contentType: 'articles' };
+      this.$store.dispatch('getMoreContent', serviceQuery);
+      return this.$store.getters.getContentByService(
+        'articles',
+        this.serviceObject.slug,
+        this.location,
+      );
     },
 
     events() {
-      const serviceEvents = this.$store.getters.getContentByService(
+      let serviceEvents = this.$store.getters.getContentByService(
         'events',
         this.serviceObject.slug,
         this.location
@@ -197,12 +212,17 @@ export default {
         return serviceEvents;
       }
 
-      const serviceQuery = { urlParams: `?services=${this.serviceObject.id}`, contentType: 'events' };
-      return this.$store.dispatch('getMoreContent', serviceQuery);
+      let serviceQuery = { urlParams: `services=${this.serviceObject.id}`, contentType: 'events' };
+      this.$store.dispatch('getMoreContent', serviceQuery);
+      return this.$store.getters.getContentByService(
+        'events',
+        this.serviceObject.slug,
+        this.location
+      );
     },
 
     pages() {
-      const servicePages = this.$store.getters.getContentByService(
+      let servicePages = this.$store.getters.getContentByService(
         'pages',
         this.serviceObject.slug,
         this.location
@@ -212,9 +232,14 @@ export default {
         return servicePages;
       }
 
-      const serviceQuery = { urlParams: `?services=${this.serviceObject.id}`, contentType: 'pages' };
+      let serviceQuery = { urlParams: `services=${this.serviceObject.id}`, contentType: 'pages' };
 
-      return this.$store.dispatch('getMoreContent', serviceQuery);
+      this.$store.dispatch('getMoreContent', serviceQuery);
+      return this.$store.getters.getContentByService(
+        'pages',
+        this.serviceObject.slug,
+        this.location
+      );
     },
   },
 
