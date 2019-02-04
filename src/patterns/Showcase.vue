@@ -9,14 +9,15 @@
             <template slot="copy">
 
                 <div class="d-flex flex-wrap">
-                    <div class="col-6 col-md-2"
+                    <div class="col-6 col-md-2 d-flex flex-column flex-fill"
                          :key="item.id"
                          v-for="(item, index) in collectionItems"
                          v-if="index < 6">
 
-                        <a class="link link--undecorated" :href="`https://www.nccardinal.org/eg/opac/record/${item.acf.record_identifier}`">
+                        <a class="link link--undecorated d-flex flex-column flex-fill" :href="`https://www.nccardinal.org/eg/opac/record/${item.acf.record_identifier}`">
 
-                            <card content-container-class="p-0"
+                            <card class="d-flex flex-column justify-content-between flex-fill"
+                                  content-container-class="p-0"
                                   :heading="item.title.rendered"
                                   heading-class="h4 text--bold text--nowrap text--ellipsis"
                                   heading-level="h3"
