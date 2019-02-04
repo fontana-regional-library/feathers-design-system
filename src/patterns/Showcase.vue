@@ -14,7 +14,7 @@
                          v-for="(item, index) in collectionItems"
                          v-if="index < 6">
 
-                        <a class="link link--undecorated" :href="`https://www.nccardinal.org/eg/opac/record/${item.acf.record_identifier}`">
+                        <a class="link link--undecorated" :href="item.acf.url">
 
                             <card content-container-class="p-0"
                                   :heading="item.title.rendered"
