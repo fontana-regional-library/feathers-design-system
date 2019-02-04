@@ -153,7 +153,7 @@ export default {
       if (serviceCTA.length > 0) {
         return serviceCTA;
       }
-      let serviceQuery = { urlParams: `services=${this.serviceObject.id}`, contentType: 'callsToAction' };
+      let serviceQuery = { urlParams: `?services=${this.serviceObject.id}`, contentType: 'callsToAction' };
       this.$store.dispatch(`getMoreContent`, serviceQuery);
       return this.$store.getters.getContentByService(
         'callsToAction',
@@ -172,7 +172,7 @@ export default {
       if (serviceCollections.length > 0) {
         return serviceCollections;
       }
-      let serviceQuery = { urlParams: `services=${this.serviceObject.id}`, contentType: 'collection' };
+      let serviceQuery = { urlParams: `&services=${this.serviceObject.id}`, contentType: 'collection' };
       this.$store.dispatch('getMoreContent', serviceQuery);
       return this.$store.getters.getContentByService(
         'collection',
@@ -192,7 +192,7 @@ export default {
         return serviceArticles;
       }
 
-      let serviceQuery = { urlParams: `services=${this.serviceObject.id}`, contentType: 'articles' };
+      let serviceQuery = { urlParams: `?services=${this.serviceObject.id}`, contentType: 'articles' };
       this.$store.dispatch('getMoreContent', serviceQuery);
       return this.$store.getters.getContentByService(
         'articles',
@@ -212,7 +212,7 @@ export default {
         return serviceEvents;
       }
 
-      let serviceQuery = { urlParams: `services=${this.serviceObject.id}`, contentType: 'events' };
+      let serviceQuery = { urlParams: `?services=${this.serviceObject.id}`, contentType: 'events' };
       this.$store.dispatch('getMoreContent', serviceQuery);
       return this.$store.getters.getContentByService(
         'events',
@@ -232,7 +232,7 @@ export default {
         return servicePages;
       }
 
-      let serviceQuery = { urlParams: `services=${this.serviceObject.id}`, contentType: 'pages' };
+      let serviceQuery = { urlParams: `?services=${this.serviceObject.id}`, contentType: 'pages' };
 
       this.$store.dispatch('getMoreContent', serviceQuery);
       return this.$store.getters.getContentByService(
