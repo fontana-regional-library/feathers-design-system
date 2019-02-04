@@ -24,7 +24,7 @@
 
                         <p class="text--large">{{ item.acf.abstract }}</p>
                         <a class="button button--large button--pink"
-                           :href="`https://www.nccardinal.org/eg/opac/record/${item.acf.record_identifier}`">
+                           :href="item.acf.url">
                             Click
                         </a>
                     </div>
@@ -54,7 +54,7 @@
                     <div class="col-8 mt-0 pl-0 pr-0">
                         <p class="mt-0">{{ item.acf.abstract }}</p>
                         <a class="button button--pink"
-                           :href="`https://www.nccardinal.org/eg/opac/record/${item.acf.record_identifier}`">
+                           :href="item.acf.url">
                             Click
                         </a>
                     </div>
