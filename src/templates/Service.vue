@@ -40,7 +40,7 @@
 
                         <div class="col col-lg-8">
 
-                            <Showcase v-if="collection"
+                            <Showcase v-if="serviceCollection.length > 0"
                                       :collection-items="serviceCollection"
                                       heading="Related Materials" />
 
@@ -53,50 +53,37 @@
 
                             </template>
 
-                            <template v-for="page in servicePages">
-
-                                <card class="card--background-white text--dark"
-                                      :content-type="blog"
-                                      :heading="page.title.rendered"
-                                      :key="page.id"
-                                      v-if="page">
-
-                                    <div slot="copy">
-                                        <div v-html="page.excerpt.rendered"></div>
+                             <template v-for="page in servicePages">
+                                <card badge-label="Information"
+                                  :heading="page.title.rendered"
+                                  class="card--background-white text--dark"
+                                  content-type="blog">
+                                  <div slot="copy">
+                                        {{ getExcerpt(page.content.rendered) }}
                                     </div>
 
-                                    <template slot="action">
-                                        <router-link class="button button--aqua"
-                                                     :to="`${page.slug}`">
-                                            Info
-                                        </router-link>
-                                    </template>
+                                <template slot="action">
+                                    <router-link class="button button--aqua" :to="`/${page.slug}`">More</router-link>
+                                </template>
 
-                                </card>
-
+                            </card>
                             </template>
 
                             <template v-for="article in serviceArticles">
-
-                                <card class="card--background-white text--dark"
-                                      :content-type="blog"
-                                      :explainer="getAuthor(article.author)"
-                                      :sub-explainer="article.date | moment('dddd, MMMM Do')"
-                                      :heading="article.title.rendered"
-                                      v-if="article">
-
-                                    <div slot="copy">
-                                        <div v-html="article.excerpt.rendered"></div>
+                                <card badge-label="Article"
+                                  :heading="article.title.rendered"
+                                  class="card--background-gray"
+                                  content-type="blog"
+                                  :explainer="article.date | moment('dddd, MMMM Do')">
+                                  <div slot="copy">
+                                        {{ getExcerpt(article.content.rendered) }}
                                     </div>
 
-                                    <template slot="action">
-                                        <router-link class="button button--aqua"
-                                                     :to="`/articles/${article.slug}`">
-                                            Info
-                                        </router-link>
-                                    </template>
+                                <template slot="action">
+                                    <router-link class="button button--orange" :to="`/articles/${article.slug}`">More</router-link>
+                                </template>
 
-                                </card>
+                            </card>
                             </template>
 
                             <template v-for="item in serviceCollection">
@@ -142,67 +129,58 @@ export default {
     Heading,
     Showcase,
   },
-  beforeUpdate () {
-    let service;
-    this.serviceObject ? service = this.$store.getters.getServiceBySlug(this.$route.params.slug) : service = this.serviceObject;
-  
-    const types = ['events','articles','pages','collection','callsToAction'];
-
-    types.forEach($type=>{
-      let query = { urlParams:`&services=${this.serviceObject.id}`, contentType:$type};
-      this.$store.dispatch('getMoreContent', query);
-    });
-  },
   computed: {
     blog(){},
     serviceCallsToAction() {
-      return this.$store.getters.getContentByService(
-        'callsToAction',
-        this.serviceObject.slug,
-        this.location,
-      );
+      return this.fetchData('callsToAction');
     },
 
     serviceCollection() {
-      return this.$store.getters.getContentByService(
-        'collection',
-        this.serviceObject.slug,
-        this.location,
-      );
-    },
-
-    serviceArticles() {
-      return this.$store.getters.getContentByService(
-        'articles',
-        this.serviceObject.slug,
-        this.location,
-      );
-    },
-
-    serviceEvents() {
-      return this.$store.getters.getContentByService(
-        'events',
-        this.serviceObject.slug,
-        this.location
-      );
+      return this.fetchData('collection');
     },
 
     servicePages() {
-      return this.$store.getters.getContentByService(
-        'pages',
-        this.serviceObject.slug,
-        this.location
-      );
+      return this.fetchData('pages');
+    },
+    serviceArticles() {
+      return this.fetchData('articles');
+    },
+    serviceEvents() {
+      return this.fetchData('events');
     },
   },
 
   methods: {
+     fetchData(type){
+      let content = this.$store.getters.getContentByService(
+        type,
+        this.serviceObject.slug,
+        this.location,
+      );
+      if(content.length == 0 || content.length < 6){
+        let query = { urlParams:`&services=${this.serviceObject.id}`, contentType:type};
+        this.$store.dispatch('getMoreContent', query);
+      }
+      return content.length < 6 ? this.$store.getters.getContentByService(
+        type,
+        this.serviceObject.slug,
+        this.location,
+      ) : content;
+    },
     getAuthor(authorId) {
       let author = this.$store.getters.getAuthorById(Number(authorId));
       if(!author){
         
       }
       return author.name;
+    },
+    getExcerpt(excerpt) {
+      const excerptContainer = document.createElement('div');
+      excerptContainer.innerHTML = excerpt;
+      let content = excerptContainer.value;
+      return excerptContainer.textContent.length > 500
+        ? `${excerptContainer.textContent.substring(0, 500)} ...`
+        : excerptContainer.textContent;
     },
   },
 
