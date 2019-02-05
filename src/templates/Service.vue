@@ -3,7 +3,7 @@
 
         <template v-if="serviceObject">
 
-            <template v-for="(call, index) in callsToAction" v-if="index === 0">
+            <template v-for="(call, index) in serviceCallsToAction" v-if="index === 0">
                 <call-to-action :action="call.acf.action"
                                 :copy="call.acf.copy"
                                 :image="call.acf.image"
@@ -41,10 +41,10 @@
                         <div class="col col-lg-8">
 
                             <Showcase v-if="collection"
-                                      :collection-items="collection"
+                                      :collection-items="serviceCollection"
                                       heading="Related Materials" />
 
-                            <template v-for="event in events">
+                            <template v-for="event in serviceEvents">
 
                                 <event-card class="card--background-gray"
                                             :event="event"
@@ -53,7 +53,7 @@
 
                             </template>
 
-                            <template v-for="page in pages">
+                            <template v-for="page in servicePages">
 
                                 <card class="card--background-white text--dark"
                                       :content-type="blog"
@@ -76,7 +76,7 @@
 
                             </template>
 
-                            <template v-for="article in articles">
+                            <template v-for="article in serviceArticles">
 
                                 <card class="card--background-white text--dark"
                                       :content-type="blog"
@@ -99,7 +99,7 @@
                                 </card>
                             </template>
 
-                            <template v-for="item in collection">
+                            <template v-for="item in serviceCollection">
 
                                 <collection-item class="card--background-blue-dark"
                                                  :item="item"
@@ -142,19 +142,20 @@ export default {
     Heading,
     Showcase,
   },
+  beforeUpdate () {
+    let service;
+    this.serviceObject ? service = this.$store.getters.getServiceBySlug(this.$route.params.slug) : service = this.serviceObject;
+  
+    const types = ['events','articles','pages','collection','callsToAction'];
 
+    types.forEach($type=>{
+      let query = { urlParams:`&services=${this.serviceObject.id}`, contentType:$type};
+      this.$store.dispatch('getMoreContent', query);
+    });
+  },
   computed: {
-    callsToAction() {
-      let serviceCTA = this.$store.getters.getContentByService(
-        'callsToAction',
-        this.serviceObject.slug,
-        this.location,
-      );
-      if (serviceCTA.length > 0) {
-        return serviceCTA;
-      }
-      let serviceQuery = { urlParams: `?services=${this.serviceObject.id}`, contentType: 'callsToAction' };
-      this.$store.dispatch(`getMoreContent`, serviceQuery);
+    blog(){},
+    serviceCallsToAction() {
       return this.$store.getters.getContentByService(
         'callsToAction',
         this.serviceObject.slug,
@@ -162,18 +163,7 @@ export default {
       );
     },
 
-    collection() {
-      let serviceCollections = this.$store.getters.getContentByService(
-        'collection',
-        this.serviceObject.slug,
-        this.location,
-      );
-
-      if (serviceCollections.length > 0) {
-        return serviceCollections;
-      }
-      let serviceQuery = { urlParams: `&services=${this.serviceObject.id}`, contentType: 'collection' };
-      this.$store.dispatch('getMoreContent', serviceQuery);
+    serviceCollection() {
       return this.$store.getters.getContentByService(
         'collection',
         this.serviceObject.slug,
@@ -181,19 +171,7 @@ export default {
       );
     },
 
-    articles() {
-      let serviceArticles = this.$store.getters.getContentByService(
-        'articles',
-        this.serviceObject.slug,
-        this.location,
-      );
-
-      if (serviceArticles.length > 0) {
-        return serviceArticles;
-      }
-
-      let serviceQuery = { urlParams: `?services=${this.serviceObject.id}`, contentType: 'articles' };
-      this.$store.dispatch('getMoreContent', serviceQuery);
+    serviceArticles() {
       return this.$store.getters.getContentByService(
         'articles',
         this.serviceObject.slug,
@@ -201,19 +179,7 @@ export default {
       );
     },
 
-    events() {
-      let serviceEvents = this.$store.getters.getContentByService(
-        'events',
-        this.serviceObject.slug,
-        this.location
-      );
-
-      if (serviceEvents.length > 0) {
-        return serviceEvents;
-      }
-
-      let serviceQuery = { urlParams: `?services=${this.serviceObject.id}`, contentType: 'events' };
-      this.$store.dispatch('getMoreContent', serviceQuery);
+    serviceEvents() {
       return this.$store.getters.getContentByService(
         'events',
         this.serviceObject.slug,
@@ -221,20 +187,7 @@ export default {
       );
     },
 
-    pages() {
-      let servicePages = this.$store.getters.getContentByService(
-        'pages',
-        this.serviceObject.slug,
-        this.location
-      );
-
-      if (servicePages.length > 0) {
-        return servicePages;
-      }
-
-      let serviceQuery = { urlParams: `?services=${this.serviceObject.id}`, contentType: 'pages' };
-
-      this.$store.dispatch('getMoreContent', serviceQuery);
+    servicePages() {
       return this.$store.getters.getContentByService(
         'pages',
         this.serviceObject.slug,
@@ -245,7 +198,10 @@ export default {
 
   methods: {
     getAuthor(authorId) {
-      const author = this.$store.getters.getAuthorById(Number(authorId));
+      let author = this.$store.getters.getAuthorById(Number(authorId));
+      if(!author){
+        
+      }
       return author.name;
     },
   },
