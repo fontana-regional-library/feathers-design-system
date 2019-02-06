@@ -37,26 +37,24 @@
                     <div class="d-md-flex">
 
                         <div class="co col-md-6 col-lg-4">
-                          <p>{{ total.events }}</p>
-                          <p>{{ events.length }}</p>
                           <div v-if="showChannel">
                               <a class="button button button--pink"
-                            v-if="pages.length < total.pages"
+                            v-if="total.pages > pages.length || pages.length > 10"
                               @click="getMoreContent('pages');">
                                 See More Information
                             </a>
                             <a class="button button button--pink"
-                            v-if="total.articles > articles.length"
+                            v-if="total.articles > articles.length || articles.length > 10"
                               @click="getMoreContent('articles');">
                                 See More Articles
                             </a>
                             <a class="button button button--pink"
-                            v-if="total.collection > collection.length"
+                            v-if="total.collection > collection.length || collection.length > 10"
                               @click="getMoreContent('collection');">
                                 See More Collection Items
                             </a>
                             <a class="button button button--pink"
-                            v-if="total.events > events.length"
+                            v-if="total.events > events.length || events.length > 10"
                               @click="getMoreContent('events');">
                                 See More Events
                             </a>
@@ -195,7 +193,7 @@
                               </div>
                               
                               <a class="button button button--pink"
-                            v-if="content === 'pages' && pages.length < total.pages"
+                            v-if="content === 'events' && pages.length < total.pages"
                               @click="getMoreContent('pages');">
                                 Load More Information
                             </a>
@@ -300,7 +298,6 @@ export default {
       if(this.contentData.events === 0){
        this.fetchData('events');
       }
-      
        return this.$store.getters.getContentByService(
           'events',
           this.serviceObject.slug,
@@ -344,36 +341,38 @@ export default {
        let page = this.contentData[type]+1;
        let fetchUrl = urls[type] + `&services=${this.serviceObject.id}&page=${page}`;
        if(this.contentData[type]===0){
-       axios.get(fetchUrl)
-      .then((response) =>{
-        this.total[type] = response.headers['x-wp-total'];
-        for(let i = 0; i<response.data.length; i++){
-          const index = this[type].findIndex(item => item.id === response.data[i].id)
-          if (index === -1){ 
-            this[type].push(response.data[i]);
+        axios.get(fetchUrl)
+        .then((response) =>{
+          this.total[type] = response.headers['x-wp-total'];
+          for(let i = 0; i<response.data.length; i++){
+            const index = this[type].findIndex(item => item.id === response.data[i].id)
+            if (index === -1){ 
+              this[type].push(response.data[i]);
+            }
           }
-        }      
-        let payload = {'content': response.data, 'contentType': type};
-        this.$store.commit('addMoreContent', payload);
-        this.contentData[type]++;
-      })
-      .catch( (error)=>{
-        console.log(error);
-      });
-       }
+          let payload = {'content': response.data, 'contentType': type};
+          this.$store.commit('addMoreContent', payload);
+          this.contentData[type]++;
+        })
+        .catch( (error)=>{
+          console.log(error);
+        });
+      }
     },
     getMoreContent(type) {
-      let page = this.contentData[type]+1;
-      let fetchUrl = urls[type] + `&services=${this.serviceObject.id}&page=${page}`;
-      axios.get(fetchUrl)
-      .then((response) =>{
-        this[type]= this[type].concat(response.data);
-        this.contentData[type]++;
-      })
-      .catch( (error)=>{
-        console.log(error);
-      });
-      
+      if(this.total[type] > this[type].length){
+        let page = this.contentData[type]+1;
+        let fetchUrl = urls[type] + `&services=${this.serviceObject.id}&page=${page}`;
+        axios.get(fetchUrl)
+        .then((response) =>{
+          this[type]= this[type].concat(response.data);
+          this.contentData[type]++;
+        })
+        .catch( (error)=>{
+          console.log(error);
+        });
+      }
+
       this.showChannel = false;
       this.content = type;      
     },
