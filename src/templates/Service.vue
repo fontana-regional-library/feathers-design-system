@@ -74,6 +74,19 @@
                             :event="event"
                             :key="event.id"/>
                 </template>
+              </div>
+              <div v-if="content === 'events'">
+                <h2 v-if="serviceCollection && serviceCollection.length > 0">Related Collection Items</h2>
+                <template v-for="item in collection">
+
+                  <collection-item class="card--background-blue-dark"
+                                  :item="item"
+                                  heading-level="h4"
+                                  :key="item.id"
+                                  subheading-class="mt-1 text--white"
+                                  subheading-level="h5"
+                                  v-if="item" />
+                </template>
               </div><!--end sidebar content-->
             </div> <!-- END SIDEBAR -->
             <!-- BEGIN MAIN CONTENT -->
