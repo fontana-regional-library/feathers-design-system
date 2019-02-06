@@ -35,7 +35,7 @@
         <div class="col-lg-10 m-lg-auto">
           <div class="d-md-flex">
             <!-- BEGIN SIDEBAR -->
-            <div class="co col-md-6 col-lg-4">
+            <div class="col col-md-6 col-lg-4">
               <!-- begin load more content buttons -->
               <div v-if="showChannel">
                 <a class="button button button--pink"
