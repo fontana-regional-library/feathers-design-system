@@ -1,233 +1,245 @@
 <template>
-    <main class="service" role="main">
+  <main class="service" role="main">
 
-        <template v-if="serviceObject">
+    <template v-if="serviceObject">
 
-            <template v-for="(call, index) in serviceCallsToAction" v-if="index === 0">
-                <call-to-action :action="call.acf.action"
-                                :copy="call.acf.copy"
-                                :image="call.acf.image"
-                                :heading="call.acf.heading"
-                                :link="call.acf.link"></call-to-action>
-            </template>
+      <template v-for="(call, index) in serviceCallsToAction" v-if="index === 0">
+          <call-to-action :action="call.acf.action"
+                          :copy="call.acf.copy"
+                          :image="call.acf.image"
+                          :heading="call.acf.heading"
+                          :link="call.acf.link"></call-to-action>
+      </template>
 
-            <header class="background--white d-flex p-4">
+      <header class="background--white d-flex p-4">
 
-                <div class="col-md-10 m-auto">
+          <div class="col-md-10 m-auto">
 
-                    <div class="col-md-8">
+              <div class="col-md-8">
 
-                        <heading class="channel__title text--dark text--serif"
-                                 level="h1" v-html="serviceObject.name">
-                        </heading>
+                  <heading class="channel__title text--dark text--serif"
+                            level="h1" v-html="serviceObject.name">
+                  </heading>
 
-                        <p class="channel__description" v-html="serviceObject.description">
-                        </p>
+                  <p class="channel__description" v-html="serviceObject.description">
+                  </p>
 
+              </div>
+
+          </div>
+
+      </header>
+
+      <section class="background--white library__section p-3">
+
+        <div class="col-lg-10 m-lg-auto">
+          <div class="d-md-flex">
+            <!-- BEGIN SIDEBAR -->
+            <div class="co col-md-6 col-lg-4">
+              <!-- begin load more content buttons -->
+              <div v-if="showChannel">
+                <a class="button button button--pink"
+                    v-if="total.pages > pages.length || pages.length > 10"
+                    @click="getMoreContent('pages');">
+                    See More Information
+                </a>
+                <a class="button button button--pink"
+                    v-if="total.articles > articles.length || articles.length > 10"
+                    @click="getMoreContent('articles');">
+                    See More Articles
+                </a>
+                <a class="button button button--pink"
+                    v-if="total.collection > collection.length || collection.length > 10"
+                    @click="getMoreContent('collection');">
+                    See More Collection Items
+                </a>
+                <a class="button button button--pink"
+                    v-if="total.events > events.length || events.length > 10"
+                    @click="getMoreContent('events');">
+                    See More Events
+                </a>
+              </div>
+              <div id="backToChannel" v-if="showChannel === false">
+                <a class="button button button--aqua"
+                    @click="backToChannel();">
+                    Back to {{ serviceObject.name }} Channel
+                </a>
+              </div> <!--end load more content buttons -->
+              <!-- Begin sidebar content-->
+              <div v-if="content !== 'events'">
+                <h2 v-if="serviceEvents && serviceEvents.length > 0">Upcoming Related Events</h2>
+
+                <template v-for="event in serviceEvents">
+                  <event-card class="card--background-gray"
+                            :event="event"
+                            :key="event.id"
+                            v-if="event" />
+                </template>
+              </div><!--end sidebar content-->
+            </div> <!-- END SIDEBAR -->
+            <!-- BEGIN MAIN CONTENT -->
+            <div class="col col-lg-8">
+              <!--BEGIN CHANNEL CONTENT -->
+              <transition name="slide-fade"><div id="content-channel" v-if="showChannel">
+                <Showcase v-if="serviceCollection.length > 0"
+                          :collection-items="serviceCollection"
+                          heading="Related Materials" />
+
+                <template v-for="page in servicePages"><!-- pages card -->
+                  <card badge-label="Information"
+                        :heading="page.title.rendered"
+                        class="card--background-white text--dark"
+                        content-type="blog"
+                        :key="page.id">
+                    <div slot="copy">
+                      {{ getExcerpt(page.content.rendered) }}
                     </div>
 
-                </div>
+                    <template slot="action">
+                      <router-link class="button button--aqua" :to="`/${page.slug}`">More</router-link>
+                    </template>
 
-            </header>
+                  </card>
+                </template><!-- end pages card -->
 
-            <section class="background--white library__section p-3">
-
-                <div class="col-lg-10 m-lg-auto">
-
-                    <div class="d-md-flex">
-
-                        <div class="co col-md-6 col-lg-4">
-                          <div v-if="showChannel">
-                              <a class="button button button--pink"
-                            v-if="total.pages > pages.length || pages.length > 10"
-                              @click="getMoreContent('pages');">
-                                See More Information
-                            </a>
-                            <a class="button button button--pink"
-                            v-if="total.articles > articles.length || articles.length > 10"
-                              @click="getMoreContent('articles');">
-                                See More Articles
-                            </a>
-                            <a class="button button button--pink"
-                            v-if="total.collection > collection.length || collection.length > 10"
-                              @click="getMoreContent('collection');">
-                                See More Collection Items
-                            </a>
-                            <a class="button button button--pink"
-                            v-if="total.events > events.length || events.length > 10"
-                              @click="getMoreContent('events');">
-                                See More Events
-                            </a>
-                        </div>
-                        <div id="backToChannel" v-if="showChannel === false">
-                          <a class="button button button--aqua"
-                          @click="backToChannel();">
-                            Back to {{ serviceObject.name }} Channel
-                        </a></div>
-                        <div v-if="content !== 'events'">
-                          <h2>Upcoming Related Events</h2>
-                          
-                          <template v-for="event in serviceEvents">
-
-                                <event-card class="card--background-gray"
-                                            :event="event"
-                                            :key="event.id"
-                                            v-if="event" />
-
-                            </template>
-                            </div>
-                        </div>
-
-                        <div class="col col-lg-8">
-                          <div id="content-channel" v-if="showChannel">
-                            <Showcase v-if="serviceCollection.length > 0"
-                                      :collection-items="serviceCollection"
-                                      heading="Related Materials" />
-
-                            
-
-                             <template v-for="page in servicePages">
-                                <card badge-label="Information"
-                                  :heading="page.title.rendered"
-                                  class="card--background-white text--dark"
-                                  content-type="blog">
-                                  <div slot="copy">
-                                        {{ getExcerpt(page.content.rendered) }}
-                                    </div>
-
-                                <template slot="action">
-                                    <router-link class="button button--aqua" :to="`/${page.slug}`">More</router-link>
-                                </template>
-
-                            </card>
-                            </template>
-
-                            <template v-for="article in serviceArticles">
-                                <card badge-label="Article"
-                                  :heading="article.title.rendered"
-                                  class="card--background-gray"
-                                  content-type="blog"
-                                  :explainer="article.date | moment('dddd, MMMM Do')">
-                                  <div slot="copy">
-                                        {{ getExcerpt(article.content.rendered) }}
-                                    </div>
-
-                                <template slot="action">
-                                    <router-link class="button button--orange" :to="`/articles/${article.slug}`">More</router-link>
-                                </template>
-
-                            </card>
-                            </template>
-
-                            <template v-for="item in serviceCollection">
-
-                                <collection-item class="card--background-blue-dark"
-                                                 :item="item"
-                                                 heading-level="h3"
-                                                 :key="item.id"
-                                                 subheading-class="mt-1 text--white"
-                                                 subheading-level="h4"
-                                                 variant="feature"
-                                                 v-if="item" />
-                            </template>
-                            </div>
-                            <!-- CONTENT-->
-                            <div v-if="showChannel===false">
-                              <div id="events" v-if="content === 'events'">
-                                <template v-for="event in events">
-
-                                  <event-card class="card--background-gray"
-                                              :event="event"
-                                              :key="event.id"
-                                              v-if="event" />
-
-                              </template>
-                              </div>
-                              <div id="articles" v-if="content === 'articles'">
-                                <template v-for="article in articles">
-                                  <card badge-label="Article"
-                                    :heading="article.title.rendered"
-                                    class="card--background-gray"
-                                    content-type="blog"
-                                    :explainer="article.date | moment('dddd, MMMM Do')">
-                                    <div slot="copy">
-                                          {{ getExcerpt(article.content.rendered) }}
-                                      </div>
-
-                                  <template slot="action">
-                                      <router-link class="button button--orange" :to="`/articles/${article.slug}`">More</router-link>
-                                  </template>
-
-                              </card>
-                              </template>
-                              </div>
-                              <div id="pages" v-if="content === 'pages'">
-                                <template v-for="page in pages">
-                                  <card badge-label="Information"
-                                    :heading="page.title.rendered"
-                                    class="card--background-white text--dark"
-                                    content-type="blog">
-                                    <div slot="copy">
-                                          {{ getExcerpt(page.content.rendered) }}
-                                      </div>
-
-                                  <template slot="action">
-                                      <router-link class="button button--aqua" :to="`/${page.slug}`">More</router-link>
-                                  </template>
-
-                              </card>
-                              </template>
-                              </div>
-                              <div id="collection" v-if="content === 'collection'">
-                                <template v-for="item in collection">
-
-                                  <collection-item class="card--background-blue-dark"
-                                                  :item="item"
-                                                  heading-level="h3"
-                                                  :key="item.id"
-                                                  subheading-class="mt-1 text--white"
-                                                  subheading-level="h4"
-                                                  variant="feature"
-                                                  v-if="item" />
-                              </template>
-                              </div>
-                              
-                              <a class="button button button--pink"
-                            v-if="content === 'events' && pages.length < total.pages"
-                              @click="getMoreContent('pages');">
-                                Load More Information
-                            </a>
-                            <a class="button button button--pink"
-                            v-if="content === 'articles' && total.articles > articles.length"
-                              @click="getMoreContent('articles');">
-                                Load More Articles
-                            </a>
-                            <a class="button button button--pink"
-                            v-if="content === 'collection' && total.collection > collection.length"
-                              @click="getMoreContent('collection');">
-                                Load More Collection Items
-                            </a>
-                            <a class="button button button--pink"
-                            v-if="content === 'events' && total.events > events.length"
-                              @click="getMoreContent('events');">
-                                Load More Events
-                            </a>
-                        
-                            </div>
-                            <!-- END CONTENT -->
-                           
-
-
-                        </div>
+                <template v-for="article in serviceArticles"><!-- articles card -->
+                  <card badge-label="Article"
+                        :heading="article.title.rendered"
+                        class="card--background-gray"
+                        content-type="blog"
+                        :explainer="article.date | moment('dddd, MMMM Do')"
+                        :key="article.id">
+                    <div slot="copy">
+                      {{ getExcerpt(article.content.rendered) }}
                     </div>
 
-                </div>
+                    <template slot="action">
+                      <router-link class="button button--orange" :to="`/articles/${article.slug}`">More</router-link>
+                    </template>
 
-            </section>
+                  </card>
+                </template><!-- end articles card -->
 
-        </template>
+                <template v-for="item in serviceCollection"><!--collection card-->
 
-    </main>
+                  <collection-item class="card--background-blue-dark"
+                                  :item="item"
+                                  heading-level="h3"
+                                  :key="item.id"
+                                  subheading-class="mt-1 text--white"
+                                  subheading-level="h4"
+                                  variant="feature"
+                                  v-if="item" />
+                </template><!--end collection card-->
+
+              </div></transition><!-- END CHANNEL CONTENT -->
+
+              <!-- CONTENT-->
+              <transition name="slide-fade"><div v-if="showChannel===false">
+
+                <!-- more events -->
+                <div id="events" v-if="content === 'events'">
+                  <template v-for="event in events">
+
+                  <event-card class="card--background-gray"
+                  :event="event"
+                  :key="event.id"
+                  v-if="event" />
+
+                  </template>
+                </div> <!-- end more events -->
+
+                <!-- more articles -->
+                <div id="articles" v-if="content === 'articles'">
+                  <template v-for="article in articles">
+                    <card badge-label="Article"
+                          :heading="article.title.rendered"
+                          class="card--background-gray"
+                          content-type="blog"
+                          :explainer="article.date | moment('dddd, MMMM Do')">
+                      <div slot="copy">
+                        {{ getExcerpt(article.content.rendered) }}
+                      </div>
+
+                      <template slot="action">
+                        <router-link class="button button--orange" :to="`/articles/${article.slug}`">More</router-link>
+                      </template>
+
+                    </card>
+                  </template>
+                </div><!-- end more articles -->
+
+                <!--more pages-->
+                <div id="pages" v-if="content === 'pages'">
+                  <template v-for="page in pages">
+                    <card badge-label="Information"
+                          :heading="page.title.rendered"
+                          class="card--background-white text--dark"
+                          content-type="blog">
+                      <div slot="copy">
+                        {{ getExcerpt(page.content.rendered) }}
+                      </div>
+
+                      <template slot="action">
+                        <router-link class="button button--aqua" :to="`/${page.slug}`">More</router-link>
+                      </template>
+
+                    </card>
+                  </template>
+                </div><!-- end more pages -->
+
+                <!-- more collection -->
+                <div id="collection" v-if="content === 'collection'">
+                  <template v-for="item in collection">
+
+                    <collection-item class="card--background-blue-dark"
+                                    :item="item"
+                                    heading-level="h3"
+                                    :key="item.id"
+                                    subheading-class="mt-1 text--white"
+                                    subheading-level="h4"
+                                    variant="feature"
+                                    v-if="item" />
+                  </template>
+                </div><!--end more collection -->
+
+                <!-- begin load more content buttons -->
+                <transition name="slide-fade">
+                <a class="button button button--pink"
+                    v-if="content === 'pages' && total.pages > pages.length"
+                    @click="getMoreContent('pages');">
+                    Load More Information
+                </a>
+                <a class="button button button--pink"
+                    v-if="content === 'articles' && total.articles > articles.length"
+                    @click="getMoreContent('articles');">
+                    Load More Articles
+                </a>
+                <a class="button button button--pink"
+                    v-if="content === 'collection' && total.collection > collection.length"
+                    @click="getMoreContent('collection');">
+                    Load More Collection Items
+                </a>
+                <a class="button button button--pink"
+                    v-if="content === 'events' && total.events > events.length"
+                    @click="getMoreContent('events');">
+                    Load More Events
+                </a></transition>
+                <!-- end load more content buttons -->
+
+              </div></transition><!-- END CONTENT -->
+                
+
+
+            </div><!--close main content col-8 -->
+          </div><!--close flex div -->
+        </div><!-- close col-10 div -->
+
+      </section>
+
+    </template>
+
+  </main>
 </template>
 
 <script>
@@ -251,7 +263,6 @@ export default {
     Showcase,
   },
   computed: {
-    blog(){},
     serviceCallsToAction() {
       if(this.contentData.callsToAction === 0){
         this.fetchData('callsToAction');
@@ -385,9 +396,13 @@ export default {
       return author.name;
     },
     getExcerpt(excerpt) {
+      if(!excerpt || excerpt.length === 0){
+        return "";
+      }
       const excerptContainer = document.createElement('div');
       excerptContainer.innerHTML = excerpt;
       let content = excerptContainer.value;
+      
       return excerptContainer.textContent.length > 500
         ? `${excerptContainer.textContent.substring(0, 500)} ...`
         : excerptContainer.textContent;
@@ -446,5 +461,18 @@ export default {
   border: none;
   box-shadow: none;
   margin: 40px 0;
+}
+/* Enter and leave animations can use different */
+/* durations and timing functions.              */
+.slide-fade-enter-active {
+  transition: all .3s ease;
+}
+.slide-fade-leave-active {
+  transition: all .3s cubic-bezier(1.0, 0.5, 0.8, 1.0);
+}
+.slide-fade-enter, .slide-fade-leave-to
+/* .slide-fade-leave-active below version 2.1.8 */ {
+  transform: translateX(10px);
+  opacity: 0;
 }
 </style>
