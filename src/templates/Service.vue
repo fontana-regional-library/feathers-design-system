@@ -2,7 +2,7 @@
   <main class="service" role="main">
 
     <template v-if="serviceObject">
-
+      <div id="serviceTop"></div>
       <template v-for="(call, index) in serviceCallsToAction" v-if="index === 0">
           <call-to-action :action="call.acf.action"
                           :copy="call.acf.copy"
@@ -59,7 +59,7 @@
                     See More Events
                 </a>
               </div>
-              <div id="backToChannel" v-if="showChannel === false">
+              <div v-if="showChannel === false">
                 <a class="button button button--aqua"
                     @click="backToChannel();">
                     Back to {{ serviceObject.name }} Channel
@@ -72,15 +72,14 @@
                 <template v-for="event in serviceEvents">
                   <event-card class="card--background-gray"
                             :event="event"
-                            :key="event.id"
-                            v-if="event" />
+                            :key="event.id"/>
                 </template>
               </div><!--end sidebar content-->
             </div> <!-- END SIDEBAR -->
             <!-- BEGIN MAIN CONTENT -->
             <div class="col col-lg-8">
               <!--BEGIN CHANNEL CONTENT -->
-              <transition name="slide-fade"><div id="content-channel" v-if="showChannel">
+              <transition name="slide-fade"><div v-if="showChannel">
                 <Showcase v-if="serviceCollection.length > 0"
                           :collection-items="serviceCollection"
                           heading="Related Materials" />
@@ -127,9 +126,7 @@
                                   heading-level="h3"
                                   :key="item.id"
                                   subheading-class="mt-1 text--white"
-                                  subheading-level="h4"
-                                  variant="feature"
-                                  v-if="item" />
+                                  subheading-level="h4"/>
                 </template><!--end collection card-->
 
               </div></transition><!-- END CHANNEL CONTENT -->
@@ -138,19 +135,18 @@
               <transition name="slide-fade"><div v-if="showChannel===false">
 
                 <!-- more events -->
-                <div id="events" v-if="content === 'events'">
+                <div v-if="content === 'events'">
                   <template v-for="event in events">
 
                   <event-card class="card--background-gray"
                   :event="event"
-                  :key="event.id"
-                  v-if="event" />
+                  :key="event.id"/>
 
                   </template>
                 </div> <!-- end more events -->
 
                 <!-- more articles -->
-                <div id="articles" v-if="content === 'articles'">
+                <div v-if="content === 'articles'">
                   <template v-for="article in articles">
                     <card badge-label="Article"
                           :heading="article.title.rendered"
@@ -170,7 +166,7 @@
                 </div><!-- end more articles -->
 
                 <!--more pages-->
-                <div id="pages" v-if="content === 'pages'">
+                <div v-if="content === 'pages'">
                   <template v-for="page in pages">
                     <card badge-label="Information"
                           :heading="page.title.rendered"
@@ -189,7 +185,7 @@
                 </div><!-- end more pages -->
 
                 <!-- more collection -->
-                <div id="collection" v-if="content === 'collection'">
+                <div v-if="content === 'collection'">
                   <template v-for="item in collection">
 
                     <collection-item class="card--background-blue-dark"
@@ -198,8 +194,7 @@
                                     :key="item.id"
                                     subheading-class="mt-1 text--white"
                                     subheading-level="h4"
-                                    variant="feature"
-                                    v-if="item" />
+                                    variant="feature"/>
                   </template>
                 </div><!--end more collection -->
 
@@ -225,6 +220,10 @@
                     @click="getMoreContent('events');">
                     Load More Events
                 </a></transition>
+                <a class="button button button--blue-alternate float-right"
+                    href="#serviceTop">
+                    Back to Top
+                </a>
                 <!-- end load more content buttons -->
 
               </div></transition><!-- END CONTENT -->
@@ -474,5 +473,8 @@ export default {
 /* .slide-fade-leave-active below version 2.1.8 */ {
   transform: translateX(10px);
   opacity: 0;
+}
+.float-right{
+  float:right;
 }
 </style>
