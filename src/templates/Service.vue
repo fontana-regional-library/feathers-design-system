@@ -300,7 +300,7 @@ export default {
       if(this.contentData.events === 0){
        this.fetchData('events');
       }
-      console.log(this.total);
+      
        return this.$store.getters.getContentByService(
           'events',
           this.serviceObject.slug,
@@ -352,10 +352,7 @@ export default {
           if (index === -1){ 
             this[type].push(response.data[i]);
           }
-        }
-        //this[type] = this[type].concat(response.data);
-        console.log("Data array");
-        console.log(this[type]);
+        }      
         let payload = {'content': response.data, 'contentType': type};
         this.$store.commit('addMoreContent', payload);
         this.contentData[type]++;
@@ -366,7 +363,6 @@ export default {
        }
     },
     getMoreContent(type) {
-      console.log("getMoreContent: " + type);
       let page = this.contentData[type]+1;
       let fetchUrl = urls[type] + `&services=${this.serviceObject.id}&page=${page}`;
       axios.get(fetchUrl)
@@ -377,7 +373,7 @@ export default {
       .catch( (error)=>{
         console.log(error);
       });
-      console.log(this[type]);
+      
       this.showChannel = false;
       this.content = type;      
     },
