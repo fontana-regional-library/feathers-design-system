@@ -381,9 +381,6 @@ export default {
       this.showChannel = false;
       this.content = type;      
     },
-    fetchAuthors(authorId){
-      this.$store.dispatch('fetchAuthorById', {authorId});
-    },
     getAuthor(authorId) {
       let author = this.$store.getters.getAuthorById(Number(authorId));
       if(!author){
