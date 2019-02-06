@@ -145,7 +145,7 @@
 
                               </template>
                               </div>
-                              <div id="articles" style="display:none">
+                              <div id="articles" v-if="content === 'articles'">
                                 <template v-for="article in articles">
                                   <card badge-label="Article"
                                     :heading="article.title.rendered"
@@ -163,7 +163,7 @@
                               </card>
                               </template>
                               </div>
-                              <div id="pages" style="display:none">
+                              <div id="pages" v-if="content === 'pages'">
                                 <template v-for="page in pages">
                                   <card badge-label="Information"
                                     :heading="page.title.rendered"
@@ -180,7 +180,7 @@
                               </card>
                               </template>
                               </div>
-                              <div id="collection" style="display:none">
+                              <div id="collection" v-if="content === 'collection'">
                                 <template v-for="item in collection">
 
                                   <collection-item class="card--background-blue-dark"
