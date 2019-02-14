@@ -55,7 +55,7 @@ Through partnerships in the community, we are able to bring you art and historic
                                 <select class="form-control"
                                         id="eventSidebarLocation"
                                         v-model="library"
-                                        @input="changeLibrary()">
+                                        >
 
                                     <option :key="location.id"
                                             :value="location.slug"
@@ -88,10 +88,12 @@ Through partnerships in the community, we are able to bring you art and historic
                             </p>
                         </div>
 
-                        <template v-if="filteredEvents[currentPage-1].length > 0" v-for="event in filteredEvents[currentPage-1]">
+                        <template  v-for="event in filteredEvents[currentPage-1]">
 
                             <event-card class="card--background-gray"
-                                        :event="event" />
+                                        :event="event"
+                                        :key="event.id"
+                                        :class="{ current: `${event.start_date_details.year}-${event.start_date_details.month}-${event.start_date_details.day}` === selectedDate}"/>
 
                         </template>
 
@@ -101,8 +103,8 @@ Through partnerships in the community, we are able to bring you art and historic
                         
                         <pagination
                         :key="total"
-                        :total="Math.ceil(total/perPage)"
-                        v-model="currentPage"></pagination>
+                        :total="pageTotal"
+                        v-model="paged"></pagination>
                         
 
                     </div>
@@ -131,26 +133,60 @@ export default {
     Pagination
   },
   watch:{
-    q: function(newq, oldq){
-      if(newq.length==0){
+    q: function(newValue, oldValue){
+      if(oldValue && oldValue.length > 0 && oldValue !== newValue){
         this.queryReset();
+      }
+    },
+    library(){
+      this.currentPage=1;
+      if(!this.library || this.library=="all"){
+        this.total = this.$store.getters.getEventCount();
+      } else {
+        this.api.page=1;
+        this.getMoreEvents();
+      }
+    },
+    paged(){
+      if(!this.filteredEvents[this.currentPage+1] || this.filteredEvents[this.currentPage+1].length < 5){
+        this.getMoreEvents();
+      }
+    },
+    selectedDate(){
+      if(this.selectedDate && this.selectedDate !== null){
+        this.queryReset();
+        let e = this.filterEvents('get');
+        this.total = e.filter(
+            event =>
+              `${event.start_date_details.year}-${
+                event.start_date_details.month
+              }-${event.start_date_details.day}` >= this.selectedDate
+          ).length;
       }
     }
   },
   computed: {
-    paged(){
-      return this.currentPage>1?this.currentPage:1;
+    paged: {
+      get: function() {
+        return this.currentPage>1?this.currentPage:1;
+      },
+      set: function(newValue) {
+        this.currentPage = newValue;
+      },   
     },
     pageTotal(){
-
+      if(!this.total){
+        this.total = this.events.length;
+      }
+      let num = Math.ceil(this.total/5);
+      return num;
     },
     events() {
-      let events = this.filterEvents(this.selectedDate, this.library);
-      if(events.length < 10){
-        this.getMoreEvents();
-        events = this.filterEvents(this.selectedDate, this.library);
+      let e = this.filterEvents();
+      if(e.length<10){
+        e = this.filterEvents('get');
       }
-      return events;
+      return e;
     },
 
     locationDetails() {
@@ -169,7 +205,7 @@ export default {
       if (!this.q) {
         return chunk(this.events,5);
       }
-      this.getMoreEvents();
+      this.queryEvents();
 
       const value = this.q.toLowerCase();
       let events = this.events.filter(function(event){ 
@@ -189,84 +225,79 @@ export default {
       library: this.location,
       eventsContainer:[],
       total:0,
-      apiPage: 1,
+      api:{
+        page:1,
+        perPage:30,
+        loaded:false,
+      },
       q: this.filter,
       currentPage: 1,
-      perPage:5,
-      more: true,      
+      perPage:5,    
     };
   },
 
   methods: {
-    queryReset(){
-      this.queryClick();
-      this.currentPage=1;
-    },
-    queryClick(){
-      if(!this.q || this.q.length<1){
-        this.apiPage=1;
-        this.more = true;
-      }
-    },
-    changeLibrary(){
-      this.library = null;
-      this.currentPage=1;
-      this.apiPage=1;
-      this.more=true;
-      this.total = this.$store.getters.getEventCount();
-      //this.getMoreEvents();
-    },
     clearSelectedDate() {
       this.selectedDate = null;
       this.q = null;
       this.library = null;
       this.currentPage = 1;
-      this.apiPage=1;
+      this.api.page=1;
       this.total = this.$store.getters.getEventCount();
     },
-    filterEvents( datestring=null, locationName =null ){
-      let events;
-      console.log("Events Container: " + this.eventsContainer.length);
+    filterEvents(g=null){
+      if(g == 'get'){
+        this.getMoreEvents();
+      }
 
-      if (datestring) {
-        events = this.eventsContainer.filter(
+      let e = this.eventsContainer;
+
+      if (this.library && this.library !== 'all') {
+        e = e.filter(
+        event => event.acf.location.some(location => location.slug === this.library)
+        );
+      } 
+
+      if (this.selectedDate && this.selectedDate !== null) {
+        e = e.filter(
           event =>
             `${event.start_date_details.year}-${
               event.start_date_details.month
-            }-${event.start_date_details.day}` === dateString
+            }-${event.start_date_details.day}` >= this.selectedDate
         );
-      } else {
-        events = this.eventsContainer;
-      }
+      } 
 
-      if (locationName && locationName !== 'all') {
-        
-        events = events.filter(
-          event => event.acf.location.some(location => location.slug === locationName)
-        );
-      }
-    return events;
+      return e;
     },
-    getMoreEvents: _.throttle(function(){ 
-      if(this.more !== false){
-        let fetchUrl = "https://fontana.librarians.design/wp-json/wp/v2/events?per_page=30";
-        fetchUrl += !this.q ? "" : `&search=${this.q}`;
-        fetchUrl += this.apiPage>1 ? `&page=${this.apiPage}` : '';
-        fetchUrl += this.locationDetails ? `&locations=${this.locationDetails.id}` : '';
-      
-        axios.get(fetchUrl)
-          .then((response) =>{
-            this.total = Number(response.headers['x-wp-total']);
-
-            this.addEvents(response.data);
-            this.apiPage++;
-          })
-          .catch( (error)=>{
-            console.log(error);
-            this.more = false;
-          })
+    queryEvents: _.throttle(function(){
+      this.fetch();
+    }, 3000, {'leading':false,'trailing':true}),
+    getMoreEvents(){
+      //if(this.api.page==1 || (this.api.page>1 && ((this.api.page-1)*this.api.perPage) < this.total)){
+      if(this.api.loaded === false){
+        this.fetch();
       }
-    }, 2500, {'leading':false,'trailing':true}),
+      if(this.api.loaded === true && ((this.q || this.library || this.selectedDate) && this.api.page==1) || ((this.api.page-1)*this.api.perPage) < this.total){
+        this.fetch();
+      }
+    },
+    fetch(){
+      let fetchUrl = `https://fontana.librarians.design/wp-json/wp/v2/events?per_page=${this.api.perPage}`;
+        fetchUrl += !this.q ? "" : `&search=${this.q}`;
+        fetchUrl += this.api.page>1 ? `&page=${this.api.page}` : '';
+        fetchUrl += this.locationDetails ? `&locations=${this.locationDetails.id}` : '';
+        fetchUrl += !this.selectedDate ? '' : `&start_date=${this.selectedDate}`;
+      axios.get(fetchUrl)
+        .then((response) =>{
+          this.total = Number(response.headers['x-wp-total']);
+          this.api.page++;
+          this.addEvents(response.data);
+          this.api.loaded=true;
+        })
+        .catch( (error)=>{
+          console.log(error);
+        })
+    },
     addEvents(data){
       if(data.length === 0){
         return;
@@ -289,13 +320,20 @@ export default {
               return date1.getTime() - date2.getTime()});
         }
     },
+    queryReset(){
+      this.api.page=1;
+      this.currentPage=1;
+    },
+    queryClick(){
+      if(!this.q){
+        this.api.page=1;
+      }
+    },
   },
   beforeMount(){
-    this.eventsContainer = this.$store.getters.getEvents();
     this.total = this.$store.getters.getEventCount();
-    if(this.eventsContainer.length < 10){
-      this.getMoreEvents();
-    }
+    this.eventsContainer = this.$store.getters.getEvents();
+    this.getMoreEvents();
   },
   mounted() {
     flatpickr("#test", {
@@ -316,6 +354,13 @@ export default {
 </script>
 
 <style lang="scss">
+.current .card__badge__explainer {
+    font-weight: 700;
+    border: 1px dotted rgba(71,160,255,.5);
+    padding: 5px;
+    margin-right: -12px;
+    background-color: rgba(255, 255, 255, 0.5);
+}
 .flatpickr-calendar {
   opacity: 0;
   display: none;

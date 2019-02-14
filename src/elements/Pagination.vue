@@ -1,6 +1,20 @@
 <template>
 <ul class="pagination">
-  
+  <li
+    :class="{ disabled: onFirstPage }"
+    class="page-item"
+  >
+    
+    <a
+      @click.prevent="setPage(1)"
+      class="page-link"
+      rel="first"
+      aria-label="First"
+    >
+      <span aria-hidden="true">Back to first</span>
+    </a>
+    
+  </li>
   <!--Prev Button-->
   <li
     :class="{ disabled: onFirstPage }"
@@ -19,11 +33,23 @@
   </li>
   
   <!--Page Buttons-->
-  <li
+  <li class="page-item disabled"
+    >
+    
+    <a
+      @click.prevent="setPage(paginator.value)"
+      class="page-link"
+      disabled="disabled"
+    >
+      <span>{{ currentPage }} of {{ total }}</span>
+    </a>
+    
+  </li>
+  <!-- <li
     v-for="paginator in paginators"
     :class="{ active: paginator.value === currentPage, disabled: !paginator.enable}"
     class="page-item"
-  >
+    >
     
     <a
       @click.prevent="setPage(paginator.value)"
@@ -33,7 +59,7 @@
       <span>{{ paginator.value }}</span>
     </a>
     
-  </li>
+  </li> -->
   
   <!--Next Button-->
   <li
@@ -67,7 +93,6 @@ export default {
     total: {
       type: Number,
       required: true,
-      validator: val => val > 0,
     },
     eachSide: {
       type: Number,
