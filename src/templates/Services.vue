@@ -25,7 +25,7 @@
 
         </header>
 
-        <section class="d-md-flex p-4" v-if="!filter">
+        <section class="d-md-flex p-4" v-if="!q">
 
             <div class="col-md-8">
 
@@ -88,21 +88,21 @@
                                 <input class="form-control"
                                        id="serviceSidebarFilter"
                                        type="text"
-                                       v-model="filter">
+                                       v-model="q">
                             </div>
 
                             <button class="button button--blue-alternate"
-                                    v-on:click="filter = null">Clear Filter</button>
+                                    v-on:click="q = null">Clear Filter</button>
                         </div>
 
                     </div>
 
                     <div class="col col-lg-8">
 
-                        <div class="alert alert--primary mb-3 pl-4 pr-4" v-if="filter">
+                        <div class="alert alert--primary mb-3 pl-4 pr-4" v-if="q">
                             <heading class="h3 text--dark text--serif" level="h2">Search</heading>
-                            <p class="channel__subtitle mt-1 text--dark text--sans" v-if="filter">
-                                Here is everything we can find that matches your search for <mark class="mark">{{ filter }}</mark>.
+                            <p class="channel__subtitle mt-1 text--dark text--sans" v-if="q">
+                                Here is everything we can find that matches your search for <mark class="mark">{{ q }}</mark>.
                             </p>
                         </div>
 
@@ -160,17 +160,26 @@ export default {
     },
 
     filteredServices() {
-      if (!this.filter) {
+      if (!this.q) {
         return this.services;
       }
 
-      return this.services.filter(service =>
-        service.name.toLowerCase().includes(this.filter)
-      );
+      const value = this.q.toLowerCase();
+      return this.services.filter(function(service){ 
+                        var res = false;
+                        if (service.name.toLowerCase().indexOf(value)!== -1 || service.description.toLowerCase().indexOf(value)!== -1) res = true;
+                        return res;
+                    });
     },
 
     services() {
       return this.$store.state.services;
+    }
+  },
+
+  data(){
+    return{
+      q: this.filter
     }
   },
 
