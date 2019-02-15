@@ -107,7 +107,7 @@ export default {
     CallToAction,
     Heading,
   },
-  created(){
+  mounted(){
     this.fetchData();
   },
   watch: {
@@ -121,18 +121,16 @@ export default {
   },
   data(){
     return{
-      event: this.event
+      event: this.eventObject
     };
   },
   methods: {
     fetchData(){
       if(!this.event){
-        this.event = this.$store.getters.getEventBySlug(this.$route.params.slug);
-      }
-      if(!this.event){
         axios.get(urls.events + `slug=${this.$route.params.slug}`)
         .then((response) =>{
           this.event = response.data[0];
+          this.$store.commit('addMoreEvents', response.data);
         })
         .catch( (error)=>{
           console.log(error);
