@@ -97,8 +97,7 @@ export default {
     },
 
     isEventSearch() {
-      return this.action.toLowerCase() === 'events'
-        || this.action.toLowerCase() === 'events-slug';
+      return this.action.toLowerCase() === 'events';
     },
 
     isEverythingSearch() {
@@ -106,8 +105,7 @@ export default {
     },
 
     isServicesSearch() {
-      return this.action.toLowerCase() === 'services'
-        || this.action.toLowerCase() === 'services-slug';
+      return this.action.toLowerCase() === 'services';
     },
 
     locationFilter() {
@@ -125,9 +123,13 @@ export default {
 
   methods: {
     resetSearchAction() {
-      console.log(this.$route);
-      const routeName = this.$route.name.toLowerCase();
-      this.action = routeName;
+      if(this.$route.name){
+        const routeName = this.$route.name.toLowerCase();
+        this.action = routeName;
+      } else if (this.$route.path) {
+        const routeName = this.$route.path.split('/')[1].toLowerCase();
+        this.action = routeName;
+      }
     },
 
     search() {
