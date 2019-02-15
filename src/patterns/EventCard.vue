@@ -2,7 +2,7 @@
 
     <div>
         <router-link class="d-block event link link--undecorated"
-                     :to="`/events/${event.slug}`">
+                     :to="{ path: `/events/${event.slug}`, props:{eventObject: event}}">
 
             <card class="mb-3"
                   content-type="event"
