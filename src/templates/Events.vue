@@ -97,11 +97,12 @@ Through partnerships in the community, we are able to bring you art and historic
 
                         </template>
 
-                        <template v-if="events.length === 0">
+                        <template v-if="eventCount === 0">
                             <p>Sorry, we couldn't find any events.</p>
                         </template>
                         
                         <pagination
+                        v-if="eventCount > 0"
                         :key="total"
                         :total="pageTotal"
                         v-model="paged"></pagination>
@@ -134,8 +135,12 @@ export default {
   },
   watch:{
     q: function(newValue, oldValue){
-      if(oldValue && oldValue.length > 0 && oldValue !== newValue){
+      if(oldValue !== newValue){
         this.queryReset();
+        this.queryEvents();
+      }
+      if(!newValue && (this.library || this.selectedDate)){
+        this.getMoreEvents();
       }
     },
     library(){
@@ -143,12 +148,17 @@ export default {
       if(!this.library || this.library=="all"){
         this.total = this.$store.getters.getEventCount();
       } else {
-        this.api.page=1;
+        this.apiPage=1;
         this.getMoreEvents();
       }
     },
-    paged(){
-      if(!this.filteredEvents[this.currentPage+1] || this.filteredEvents[this.currentPage+1].length < 5){
+    paged: function(newValue, oldValue){
+      if(this.currentPage > 4 && this.eventCount < this.total && ((this.currentPage*this.perPage)+10 > (this.apiPage*this.apiPerPage) )){
+        this.apiPage = this.eventCount/this.apiPerPage < 1 ? 1 : this.eventCount % this.apiPerPage === 0 ? (this.eventCount/this.apiPerPage) + 1 : Math.ceil(this.eventCount/this.apiPerPage); 
+        }
+    },
+    apiPage: function(newValue, oldValue){
+      if(newValue !== oldValue){
         this.getMoreEvents();
       }
     },
@@ -176,16 +186,13 @@ export default {
     },
     pageTotal(){
       if(!this.total){
-        this.total = this.events.length;
+        this.total = this.eventCount;
       }
-      let num = Math.ceil(this.total/5);
+      let num = Math.ceil(this.total/this.perPage);
       return num;
     },
     events() {
       let e = this.filterEvents();
-      if(e.length<10){
-        e = this.filterEvents('get');
-      }
       return e;
     },
 
@@ -203,19 +210,19 @@ export default {
 
     filteredEvents() {
       if (!this.q) {
-        return chunk(this.events,5);
+        let e = this.events;
+        this.eventCount = e.length;
+        return chunk(e, this.perPage);
       }
-      this.queryEvents();
 
       const value = this.q.toLowerCase();
-      let events = this.events.filter(function(event){ 
+      let e = this.events.filter(function(event){ 
                         var res = false;
                         if (event.title.toLowerCase().indexOf(value)!== -1 || event.content.toLowerCase().indexOf(value)!== -1) res = true;
                         return res;
                     });
-      
-      this.total = events.length;
-      return chunk(events, 5);
+      this.eventCount = e.length;
+      return chunk(e, this.perPage);
     }
   },
 
@@ -225,24 +232,26 @@ export default {
       library: this.location,
       eventsContainer:[],
       total:0,
-      api:{
-        page:1,
-        perPage:30,
-        loaded:false,
-      },
+      apiPage:1,
+      apiPerPage:30,
+      apiLoaded:false,
       q: this.filter,
       currentPage: 1,
-      perPage:5,    
+      perPage:5,
+      eventCount: 0,    
     };
   },
 
   methods: {
     clearSelectedDate() {
+      const now = new Date();
+      this.calendar.clear();
+      this.calendar.jumpToDate(now);
       this.selectedDate = null;
       this.q = null;
       this.library = null;
       this.currentPage = 1;
-      this.api.page=1;
+      this.apiPage=1;
       this.total = this.$store.getters.getEventCount();
     },
     filterEvents(g=null){
@@ -270,29 +279,29 @@ export default {
       return e;
     },
     queryEvents: _.throttle(function(){
-      this.fetch();
-    }, 3000, {'leading':false,'trailing':true}),
-    getMoreEvents(){
-      //if(this.api.page==1 || (this.api.page>1 && ((this.api.page-1)*this.api.perPage) < this.total)){
-      if(this.api.loaded === false){
+      if(this.eventCount < this.total){
         this.fetch();
       }
-      if(this.api.loaded === true && ((this.q || this.library || this.selectedDate) && this.api.page==1) || ((this.api.page-1)*this.api.perPage) < this.total){
+    }, 2500, {'leading':false,'trailing':true}),
+    getMoreEvents(){
+      if(this.apiLoaded === false){
+        this.fetch();
+      }
+      if(this.apiLoaded === true && (((this.q || this.library || this.selectedDate) && this.apiPage==1) || (this.eventCount < this.total))){
         this.fetch();
       }
     },
     fetch(){
-      let fetchUrl = `https://fontana.librarians.design/wp-json/wp/v2/events?per_page=${this.api.perPage}`;
+      let fetchUrl = `https://fontana.librarians.design/wp-json/wp/v2/events?per_page=${this.apiPerPage}`;
         fetchUrl += !this.q ? "" : `&search=${this.q}`;
-        fetchUrl += this.api.page>1 ? `&page=${this.api.page}` : '';
+        fetchUrl += ( this.eventCount && ( this.eventCount < this.total )) ? `&page=${this.apiPage}` : '';
         fetchUrl += this.locationDetails ? `&locations=${this.locationDetails.id}` : '';
         fetchUrl += !this.selectedDate ? '' : `&start_date=${this.selectedDate}`;
       axios.get(fetchUrl)
         .then((response) =>{
           this.total = Number(response.headers['x-wp-total']);
-          this.api.page++;
           this.addEvents(response.data);
-          this.api.loaded=true;
+          this.apiLoaded=true;
         })
         .catch( (error)=>{
           console.log(error);
@@ -300,6 +309,9 @@ export default {
     },
     addEvents(data){
       if(data.length === 0){
+        if(this.apiPage === 1){
+          this.total = 0;
+        }
         return;
       }
       
@@ -321,12 +333,12 @@ export default {
         }
     },
     queryReset(){
-      this.api.page=1;
+      this.apiPage=1;
       this.currentPage=1;
     },
     queryClick(){
       if(!this.q){
-        this.api.page=1;
+        this.apiPage=1;
       }
     },
   },
@@ -336,7 +348,7 @@ export default {
     this.getMoreEvents();
   },
   mounted() {
-    flatpickr("#test", {
+    this.calendar = flatpickr("#test", {
       inline: true
     });
   },
