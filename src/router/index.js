@@ -78,6 +78,7 @@ const router = new Router({
 
     {
       component: Event,
+      name: "Events-slug",
       path: "/events/:slug",
       props: route => ({
         eventObject: router.app.$store.getters.getEventBySlug(route.params.slug),
@@ -105,6 +106,7 @@ const router = new Router({
     },
     {
       component: Service,
+      name: "Services-slug",
       path: "/services/:slug",
       props: route => ({
         serviceObject: router.app.$store.getters.getServiceBySlug(route.params.slug),
