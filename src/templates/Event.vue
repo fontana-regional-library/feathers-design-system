@@ -130,7 +130,7 @@ export default {
         axios.get(urls.events + `slug=${this.$route.params.slug}`)
         .then((response) =>{
           this.event = response.data[0];
-          this.$store.commit('addMoreEvents', response.data);
+          //this.$store.commit('addMoreEvents', response.data);
         })
         .catch( (error)=>{
           console.log(error);
