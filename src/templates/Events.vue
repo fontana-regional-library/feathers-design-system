@@ -134,6 +134,11 @@ export default {
     Pagination
   },
   watch:{
+    $route() {
+      if(this.$route.query.location && this.$route.query.location !== "all"){
+        this.library = this.$route.query.location;
+      }
+    },
     q: function(newValue, oldValue){
       if(oldValue !== newValue){
         this.queryReset();
