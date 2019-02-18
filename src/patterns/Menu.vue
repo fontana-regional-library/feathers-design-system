@@ -55,7 +55,7 @@
             <template slot="label">{{ currentLocation }}</template>
             <template slot="items">
 
-                <router-link :to="{query:{location:'all'}}">All Libraries</router-link>
+                <router-link :to="{query:{location:'all'}}"><span @click="setLocation('all')">All Libraries</span></router-link>
                 <router-link
                   class="d-block dropdown__menu__item link link--undecorated mb-1 mt-1 text--underlined"
                  :key="location.id"
@@ -94,7 +94,7 @@ export default {
       } else if (!this.storedLocation){
         this.$store.commit('setUserLocation', locationSlugInUrl);
       }
-      
+
       const location = this.locations.find(location => location.slug === locationSlugInUrl);
 
       return (location ? location.name : 'All Libraries');

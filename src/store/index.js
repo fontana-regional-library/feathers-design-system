@@ -333,7 +333,7 @@ export default new Vuex.Store({
       }
     },
     setUserLocation(state, location){
-      state.userLocation = location;
+      state.userLocation = location !== 'all' ? location : null;
     },
   }
 });
