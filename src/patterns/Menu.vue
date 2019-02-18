@@ -55,11 +55,11 @@
             <template slot="label">{{ currentLocation }}</template>
             <template slot="items">
 
-                <router-link :to="setLocationInQueryParameter('all')">All Libraries</router-link>
+                <router-link :to="{query:{location:'all'}}">All Libraries</router-link>
                 <router-link
                   class="d-block dropdown__menu__item link link--undecorated mb-1 mt-1 text--underlined"
                  :key="location.id"
-                 :to="setLocationInQueryParameter(`${location.slug}`)"
+                 :to="{query: {location: `${location.slug}`}}"
                  v-for="location in locations">
                     {{ location.name }}
                 </router-link>
@@ -99,11 +99,7 @@ export default {
   },
 
   methods: {
-    setLocationInQueryParameter(locationSlug) {
-      return {
-        query: Object.assign({}, this.$route.query, { location: `${locationSlug}` }),
-      };
-    },
+
   },
 
   mounted() {
