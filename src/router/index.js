@@ -46,7 +46,7 @@ const router = new Router({
       path: '/collection',
       props: route => ({
         channelTitle: 'Collection',
-        location: route.query.location,
+        location: router.app.$store.state.userLocation,
         slug: any,
       }),
     },
@@ -59,7 +59,7 @@ const router = new Router({
       name: "Index",
       path: "/",
       props: route => ({
-        location: route.query.location
+        location: router.app.$store.state.userLocation
       })
     },
 
@@ -72,7 +72,7 @@ const router = new Router({
       path: "/events",
       props: route => ({
         filter: route.query.filter,
-        location: route.query.location
+        location: router.app.$store.state.userLocation
       }),
     },
 
@@ -90,7 +90,7 @@ const router = new Router({
       path: "/search",
       props: route => ({
         filter: route.query.filter,
-        location: route.query.location
+        location: router.app.$store.state.userLocation
       })
     },
 
@@ -100,7 +100,7 @@ const router = new Router({
       path: "/services",
       props: route => ({
         filter: route.query.filter,
-        location: route.query.location
+        location: router.app.$store.state.userLocation
       })
     },
     {
@@ -108,7 +108,7 @@ const router = new Router({
       path: "/services/:slug",
       props: route => ({
         serviceObject: router.app.$store.getters.getServiceBySlug(route.params.slug),
-        location: route.query.location,
+        location: router.app.$store.state.userLocation,
       }),
     },
     {
