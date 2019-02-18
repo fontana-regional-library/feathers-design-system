@@ -61,7 +61,7 @@
                  :key="location.id"
                  :to="{query: {location: `${location.slug}`}}"
                  v-for="location in locations">
-                    {{ location.name }}
+                     <span @click="setLocation(location.slug)">{{ location.name }}</span>
                 </router-link>
             </template>
         </Dropdown>
@@ -87,7 +87,14 @@ export default {
      * if it's present in the url.
      */
     currentLocation() {
-      const locationSlugInUrl = this.$route.query.location;
+      let locationSlugInUrl = this.$route.query.location;
+
+      if(!locationSlugInUrl){
+        locationSlugInUrl = this.$store.state.userLocation;
+      } else if (!this.storedLocation){
+        this.$store.commit('setUserLocation', locationSlugInUrl);
+      }
+      
       const location = this.locations.find(location => location.slug === locationSlugInUrl);
 
       return (location ? location.name : 'All Libraries');
@@ -96,10 +103,16 @@ export default {
     locations() {
       return this.$store.state.locations;
     },
+
+    storedLocation(){
+      return this.$store.state.userLocation;
+    },
   },
 
   methods: {
-
+    setLocation(slug){
+      this.$store.commit('setUserLocation', slug);
+    }
   },
 
   mounted() {
