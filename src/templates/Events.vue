@@ -80,7 +80,7 @@ Through partnerships in the community, we are able to bring you art and historic
                                v-if="q || library">
                                 Here is everything we can find that matches your search
                                 {{ q ? 'for' : '' }} <mark class="mark">{{ q }}</mark>
-                                <template v-if="library">happening at <router-link class="link" :to="`location/${locationDetails.slug}`">{{ locationDetails.name }}</router-link></template>.
+                                <template v-if="library && locationDetails">happening at <router-link class="link" :to="`location/${locationDetails.slug}`">{{ locationDetails.name }}</router-link></template>.
                             </p>
 
                             <p class="channel__subtitle text--dark text--large" v-if="selectedDate">
