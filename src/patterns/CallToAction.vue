@@ -16,7 +16,7 @@
             </template>
 
         </card>
-
+        <div class="card__backdrop card--background-blue-base"></div>
         <div class="background-image-test d-none d-sm-block"
              :style="`background-image: url(${image});`"></div>
 
@@ -64,5 +64,12 @@ export default {
 <style>
 .call-to-action {
   position: relative;
+}
+div[class*="call-to-action"][class*="col-"] .card__backdrop {
+  width:100%;
+  height:100%;
+  position:absolute;
+  top:0;
+  left:0;
 }
 </style>
