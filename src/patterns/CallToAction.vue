@@ -9,8 +9,9 @@
               type="deck">
 
             <template slot="action">
-                <a class="button button--aqua button--large"
-                             :href="link">
+                <a v-if="link"
+                  class="button button--aqua button--large"
+                  :href="link">
                     {{ action }}
                 </a>
             </template>
