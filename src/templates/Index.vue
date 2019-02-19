@@ -88,7 +88,8 @@
 
           <div class="col-lg-4 p-0" v-if="secondaryCTA">
             <template>
-              <call-to-action :action="secondaryCTA.acf.action"
+              <call-to-action class="ml-md-2"
+                              :action="secondaryCTA.acf.action"
                               :copy="secondaryCTA.acf.copy"
                               :image="secondaryCTA.acf.image"
                               :heading="secondaryCTA.acf.heading"
