@@ -140,8 +140,8 @@ export default {
         this.location,
       ).sort((a,b) => (a.acf.priority > b.acf.priority) ? 1
                     : ((b.acf.priority > a.acf.priority) ? -1 
-                    : (a.acf.expire > b.acf.expire) ? -1 
-                    : (b.acf.expire > a.acf.expire) ? 1:  0));
+                    : /* (a.acf.expire > b.acf.expire) ? -1 
+                    : (b.acf.expire > a.acf.expire) ? 1:   */0));
     },
 
     collection() {
