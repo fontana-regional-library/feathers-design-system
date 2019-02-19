@@ -65,7 +65,7 @@ export default {
 .call-to-action {
   position: relative;
 }
-div[class*="call-to-action"][class*="col-"] .card__backdrop {
+.card__backdrop {
   width:100%;
   height:100%;
   position:absolute;
