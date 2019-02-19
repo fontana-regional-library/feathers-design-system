@@ -90,7 +90,7 @@
             <template>
               <call-to-action :action="secondaryCTA.acf.action"
                               :copy="secondaryCTA.acf.copy"
-                              :image="secondaryCTA.acf.heading"
+                              :image="secondaryCTA.acf.image"
                               :heading="secondaryCTA.acf.heading"
                               :link="secondaryCTA.acf.link"></call-to-action>
             </template>
