@@ -241,11 +241,13 @@ export default {
      */
     $route() {
       this.resetSearchAction();
-      this.$router.push({
+      if(this.storedLocation && this.storedLocation!== 'all' && this.$route.name){
+        this.$router.push({
           query: {
-            location: this.storedLocation ? `${this.storedLocation}` : '',
+            location: this.storedLocation,
           },
         });
+      }
     },
   },
 };
