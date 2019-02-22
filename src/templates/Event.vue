@@ -82,6 +82,7 @@ import AddToCalendar from 'vue-add-to-calendar';
 import Vue from 'vue';
 import VueMoment from 'vue-moment';
 
+import Person from '../patterns/Person.vue';
 import CallToAction from '../patterns/CallToAction.vue';
 import Heading from '../elements/Heading.vue';
 
@@ -94,6 +95,7 @@ export default {
   components: {
     CallToAction,
     Heading,
+    Person
   },
 
   computed: {
