@@ -36,26 +36,15 @@
                     </div>
                 </add-to-calendar>
 
-                <div class="d-flex" v-if="author">
-                    <div class="col-6">
-                        <div class="align-items-center background--gray card d-flex row mb-3 person">
-
-                            <div class="person__avatar">
-                                <img class="rounded-circle" :src="author.avatar_urls['96']" alt="">
-                            </div>
-
-                            <div class="person__content" v-if="author">
-                                <p class="align-items-center mt-3">
-                                    <span class="text--dark text--bold text--underlined person__name">{{ author.name }}</span> <br>
-                                    <span class="text--small text--dark">No Position Added Yet</span>
-                                </p>
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </div>
+                <template v-for="contact in event.organizer">
+                        <person :key="contact.id"
+                                :name="contact.organizer"
+                                :title="contact.description"
+                                type="organizer"
+                                :profileImage="{url: contact.image.url, w: contact.image.width, h: contact.image.height}"
+                                contentContainerClass="col-6">
+                                </person>
+                      </template>
 
             </header>
 
