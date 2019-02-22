@@ -111,21 +111,6 @@ export default {
 </script>
 
 <style lang="scss">
-.person {
-  display: flex;
-
-  &__avatar {
-    margin-left: 1rem;
-    margin-right: 1rem;
-    max-width: 64px;
-    width: 25%;
-  }
-}
-
-.person__avatar img {
-  max-width: 100%;
-  vertical-align: bottom;
-}
 .event {
   font-family: $font-family-text;
 
