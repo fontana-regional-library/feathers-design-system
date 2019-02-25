@@ -5,6 +5,7 @@ import Collection from '../templates/Collection.vue';
 import Event from "../templates/Event.vue";
 import Events from "../templates/Events.vue";
 import Index from "../templates/Index.vue";
+import Location from '../templates/Location.vue';
 import NotFound from "../templates/NotFound.vue";
 import SearchResults from "../templates/SearchResults.vue";
 import Service from '../templates/Service.vue';
@@ -83,7 +84,13 @@ const router = new Router({
         eventObject: router.app.$store.getters.getEventBySlug(route.params.slug),
       }),
     },
-
+    {
+      component: Location,
+      path: "/locations/:slug",
+      props: route => ({
+        locationObject: router.app.$store.getters.getLocationBySlug(route.params.slug),
+      }),
+    },
     {
       component: SearchResults,
       name: "Search",
