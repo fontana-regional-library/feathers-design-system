@@ -16,6 +16,7 @@ articles: 'https://fontana.librarians.design/wp-json/wp/v2/posts',
 resources: 'https://fontana.librarians.design/wp-json/wp/v2/resources',
 services: 'https://fontana.librarians.design/wp-json/wp/v2/services?per_page=50',
 events: 'https://fontana.librarians.design/wp-json/wp/v2/events',
+userLocation: null
 };
 
 export default new Vuex.Store({
@@ -348,6 +349,9 @@ export default new Vuex.Store({
           state[payload.contentType].push(payload.content[i]);
         }
       }
-    }
+    },
+    setUserLocation(state, location){
+      state.userLocation = location !== 'all' ? location : null;
+    },
   }
 });

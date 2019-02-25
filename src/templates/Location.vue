@@ -274,8 +274,8 @@ export default {
 
       let closed = true;
       if(today === weekday && !hours.closed){
-      const open = moment(hours.open);
-      const close = moment(hours.close);
+      const open = moment(hours.open, format);
+      const close = moment(hours.close, format);
       closed = time.isBetween(open, close);
       } 
 
