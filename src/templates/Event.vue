@@ -42,7 +42,7 @@
                                 :title="contact.description"
                                 type="organizer"
                                 :profileImage="{url: contact.image.url, w: contact.image.width, h: contact.image.height}"
-                                contentContainerClass="col-6">
+                                contentContainerClass="col-6 mb-2">
                                 </person>
                       </template>
 
