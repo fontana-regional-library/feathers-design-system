@@ -64,7 +64,7 @@
 
                     <heading class="text--dark" level="h3">Where</heading>
 
-                    <router-link class="d-block text--dark text--underline" :to="`/location/${eventObject.venue.slug}`">{{ eventObject.venue.venue }}</router-link>
+                    <router-link class="d-block text--dark text--underline" :to="`/locations/${eventObject.venue.slug}`">{{ eventObject.venue.venue }}</router-link>
                     <span class="d-block">{{ eventObject.venue.address }}</span>
                     <span class="d-block">{{ eventObject.venue.city }}, {{ eventObject.venue.state }} {{ eventObject.venue.zip }}</span>
                     <span class="d-block">{{ eventObject.venue.phone }}</span>

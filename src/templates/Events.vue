@@ -78,7 +78,7 @@ Through partnerships in the community, we are able to bring you art and historic
                                v-if="filter || location">
                                 Here is everything we can find that matches your search
                                 {{ filter ? 'for' : '' }} <mark class="mark">{{ filter }}</mark>
-                                <template v-if="location">happening at <router-link class="link" :to="`location/${location.slug}`">{{ locationDetails.name }}</router-link></template>.
+                                <template v-if="location">happening at <router-link class="link" :to="`locations/${location.slug}`">{{ locationDetails.name }}</router-link></template>.
                             </p>
 
                             <p class="channel__subtitle text--dark text--large" v-if="selectedDate">
