@@ -186,13 +186,20 @@ export default new Vuex.Store({
     getContentByLibrary: state => (contentType, locationName) => {
       let contents = [];
 
-      if (locationName !== 'all') {
+      if (locationName !== 'all' && locationName !== 'headquarters') {
         contents = state[contentType].filter(
             page => page.acf.location 
               ? page.acf.location.some(location => location.slug === locationName)
               : null
           );
-      } 
+      } else if (locationName == 'headquarters') {
+        contents = state[contentType].filter(
+          page => page.acf.location == false ||
+            page.acf.location.some(location => location.slug === 'headquarters')
+        );
+      } else {
+        contents = state[contentType];
+      }
       return contents;
     },
     getContentByService: state => (contentType, serviceName = null, locationName = null) => {
