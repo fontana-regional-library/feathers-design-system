@@ -36,7 +36,7 @@
                     </div>
                 </add-to-calendar>
 
-                <template v-for="contact in event.organizer">
+                <template v-for="contact in eventObject.organizer">
                         <person :key="contact.id"
                                 :name="contact.organizer"
                                 :title="contact.description"
