@@ -182,6 +182,18 @@ export default new Vuex.Store({
 
       return actionsByService;
     },
+    getContentByLibrary: state => (contentType, locationName) => {
+      let contents = [];
+
+      if (locationName !== 'all') {
+        contents = state[contentType].filter(
+            page => page.acf.location 
+              ? page.acf.location.some(location => location.slug === locationName)
+              : null
+          );
+      } 
+      return contents;
+    },
     getContentByService: state => (contentType, serviceName = null, locationName = null) => {
       let contents;
       let contentsFilteredByService = [];
@@ -239,6 +251,10 @@ export default new Vuex.Store({
       return Number(state.eventCount);
     },
 
+    getLocationBySlug: state => (slug) => {
+      return state.locations.find(location => location.slug === slug)
+    },
+    
     /**
      * We can use `getRandomContentItem(services)` -- for example -- to return
      * a random service.
@@ -258,7 +274,9 @@ export default new Vuex.Store({
       ];
     },
 
-    getServiceBySlug: state => slug => state.services.find(service => service.slug === slug),
+    getServiceBySlug: state => (slug) => { 
+      return state.services.find(service => service.slug === slug);
+    },
   },
 
   mutations: {
