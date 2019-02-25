@@ -1,5 +1,5 @@
 <template>
-  <main class="location" role="main">
+  <main class="location" role="main" itemscope itemtype="http://schema.org/Library">
 
     <template v-if="locationObject">
       <div id="locationTop"></div>
@@ -15,7 +15,7 @@
 
           <div class="col-md-10 m-auto">
 
-              <div class="col-md-8" itemscope itemtype="http://schema.org/Organization">
+              <div class="col-md-8" >
 
                   <heading class="channel__title text--dark text--serif"
                             level="h1" v-html="library.name" itemprop="name">
@@ -49,19 +49,24 @@
                     <div slot="copy">
                       <div class="location__hours__wrap d-flex flex-column">
                         <div class="location__hours" v-for="(day,index) in library.acf.operating_hours" :key="index"
-                                  :class="getOrder(index, day)" v-html="getOperatingHours(index, day)">
+                                  :class="getOrder(index, day)" v-html="getOperatingHours(index, day)"
+                                  itemprop="openingHoursSpecification" itemtype="http://schema.org/OpeningHoursSpecification">
                           </div>
                         </div>
 
                   
 
-                      <address class="location__address mt-4 pt-4 border-top" itemprop="address" itemscope itemtype="http://schema.org/PostalAddress">
+                      <address class="location__address mt-4 pt-4 border-top" itemprop="location address" itemscope itemtype="http://schema.org/PostalAddress">
                         <div class="location__street h4" itemprop="streetAddress">{{library.acf.address}}</div>
-                        <div v-if="library.acf.mailing_address" class="location__mailing h4">{{library.acf.mailing_address}}</div>
+                        <div v-if="library.acf.mailing_address" class="location__mailing h4">PO Box <span itemprop="postOfficeBoxNumber">{{library.acf.mailing_address}}</span></div>
                         <div class="location__city h4"><span itemprop="addressLocality">{{library.acf.city}}, {{library.acf.state}}</span> <span itemprop="postalCode">{{library.acf.zip}}</span></div>
                         <div class="location__phone mt-3">Phone: <span itemprop="telephone"> {{library.acf.phone}}</span></div>
                         <div class="location__fax">Fax: <span itemprop="faxNumber">{{library.acf.fax}}</span></div>
                       </address>
+                      <div class="location__social mt-3">
+                      <a v-if="library.acf.facebook_username" :href="`https://facebook.com/${library.acf.facebook_username}`" itemprop="sameAs"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path class='location__social-icon' d="M22.675 0h-21.35c-.732 0-1.325.593-1.325 1.325v21.351c0 .731.593 1.324 1.325 1.324h11.495v-9.294h-3.128v-3.622h3.128v-2.671c0-3.1 1.893-4.788 4.659-4.788 1.325 0 2.463.099 2.795.143v3.24l-1.918.001c-1.504 0-1.795.715-1.795 1.763v2.313h3.587l-.467 3.622h-3.12v9.293h6.116c.73 0 1.323-.593 1.323-1.325v-21.35c0-.732-.593-1.325-1.325-1.325z"/></svg></a>
+                      </div>
+                      
                     </div>
           
 
@@ -69,7 +74,7 @@
                 </template>
                 <div class="d-flex flex-column">
                       <a class="button button--large button--aqua location__phone-button"
-                            :href="`tel:1${library.acf.phone}`" style="">
+                            :href="`tel:1-${library.acf.phone}`" style="">
                             <span class="location__phone-button__icon">
                               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="none" d="M0 0h24v24H0z"/><path style="fill:#fff" d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56-.35-.12-.74-.03-1.01.24l-1.57 1.97c-2.83-1.35-5.48-3.9-6.89-6.83l1.95-1.66c.27-.28.35-.67.24-1.02-.37-1.11-.56-2.3-.56-3.53 0-.54-.45-.99-.99-.99H4.19C3.65 3 3 3.24 3 3.99 3 13.28 10.73 21 20.01 21c.71 0 .99-.63.99-1.18v-3.45c0-.54-.45-.99-.99-.99z"/></svg>
                             </span>
@@ -86,6 +91,11 @@
                   </div>
                 <img :src="library.acf.building_image.url" class="flex-grow-0"/>
                   
+
+                      <router-link v-if="library.slug !== 'headquarters'" itemprop="branchOf" class="link"
+                    :to="'/locations/headquarters'">
+                        Member of Fontana Regional Library
+                  </router-link>
 
 
            </div>
@@ -288,10 +298,11 @@ export default {
     },
 
     getOperatingHours(day, hours){
+      const format = 'hh:mm a';
       day = day[0].toUpperCase() + day.substring(1).toLowerCase();
       return hours.closed 
                 ? `<span class='location__hours__day__name'>${day}</span> <span class='location__hours__day__hours--closed'>Closed</span></div>`
-                : `<span class='location__hours__day__name'>${day}</span> <span class='location__hours__day__hours'>${hours.open} - ${hours.close}</span></div>`;
+                : `<span class='location__hours__day__name' itemprop="dayOfWeek" href="http://schema.org/${day}">${day}</span> <span class='location__hours__day__hours'><span itemprop="opens" content="${moment(hours.open, format).format("HH:mm:ss")}">${hours.open}</span>- <span itemprop="closes" content="${moment(hours.close, format).format("HH:mm:ss")}">${hours.close}</span></span></div>`;
     }
   },
   props: {
@@ -303,6 +314,9 @@ export default {
 </script>
 
 <style lang="scss">
+.location__social-icon{
+  fill: $color-blue-alternate;
+}
 .location__phone-button{
   font-size:1.4em;
   position:relative;
