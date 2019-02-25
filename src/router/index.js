@@ -6,6 +6,7 @@ import Event from "../templates/Event.vue";
 import Events from "../templates/Events.vue";
 import Index from "../templates/Index.vue";
 import Location from '../templates/Location.vue';
+import Locations from '../templates/Locations.vue';
 import NotFound from "../templates/NotFound.vue";
 import SearchResults from "../templates/SearchResults.vue";
 import Service from '../templates/Service.vue';
@@ -90,6 +91,10 @@ const router = new Router({
       props: route => ({
         locationObject: router.app.$store.getters.getLocationBySlug(route.params.slug),
       }),
+    },
+    {
+      component: Locations,
+      path: "/locations",
     },
     {
       component: SearchResults,

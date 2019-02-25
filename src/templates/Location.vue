@@ -36,26 +36,7 @@
           <div class="d-md-flex">
             <!-- BEGIN SIDEBAR -->
             <div class="col col-md-6 col-lg-4"> 
-              <div class="location__info" style="display:inline-block">
-                  <img :src="library.acf.building_image.url" class="flex-grow-0"/>
-                  <div class="d-flex flex-column">
-                      <a class="button button--large button--aqua location__phone-button"
-                            :href="`tel:1${library.acf.phone}`" style="">
-                            <span class="location__phone-button__icon">
-                              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="none" d="M0 0h24v24H0z"/><path style="fill:#fff" d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56-.35-.12-.74-.03-1.01.24l-1.57 1.97c-2.83-1.35-5.48-3.9-6.89-6.83l1.95-1.66c.27-.28.35-.67.24-1.02-.37-1.11-.56-2.3-.56-3.53 0-.54-.45-.99-.99-.99H4.19C3.65 3 3 3.24 3 3.99 3 13.28 10.73 21 20.01 21c.71 0 .99-.63.99-1.18v-3.45c0-.54-.45-.99-.99-.99z"/></svg>
-                            </span>
-                            <span itemprop="telephone"> {{library.acf.phone}}</span>
-                        </a>
-                      <template v-for="contact in library.acf.contact">
-                        <person :key="contact.person.ID"
-                                :name="contact.person.post_title"
-                                :title="contact.title"
-                                type="organizer"
-                                :personObject="contact.person">
-                                </person>
-                      </template>
-                  </div>
-                  
+              <div class="location__info" style="display:inline-block">                  
 
                 <!-- Begin sidebar content-->
      
@@ -78,13 +59,33 @@
                         <div class="location__street h4" itemprop="streetAddress">{{library.acf.address}}</div>
                         <div v-if="library.acf.mailing_address" class="location__mailing h4">{{library.acf.mailing_address}}</div>
                         <div class="location__city h4"><span itemprop="addressLocality">{{library.acf.city}}, {{library.acf.state}}</span> <span itemprop="postalCode">{{library.acf.zip}}</span></div>
-                        <div class="location__fax my-3">Fax: <span itemprop="faxNumber">{{library.acf.fax}}</span></div>
+                        <div class="location__phone mt-3">Phone: <span itemprop="telephone"> {{library.acf.phone}}</span></div>
+                        <div class="location__fax">Fax: <span itemprop="faxNumber">{{library.acf.fax}}</span></div>
                       </address>
                     </div>
           
 
                   </card>
                 </template>
+                <div class="d-flex flex-column">
+                      <a class="button button--large button--aqua location__phone-button"
+                            :href="`tel:1${library.acf.phone}`" style="">
+                            <span class="location__phone-button__icon">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="none" d="M0 0h24v24H0z"/><path style="fill:#fff" d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56-.35-.12-.74-.03-1.01.24l-1.57 1.97c-2.83-1.35-5.48-3.9-6.89-6.83l1.95-1.66c.27-.28.35-.67.24-1.02-.37-1.11-.56-2.3-.56-3.53 0-.54-.45-.99-.99-.99H4.19C3.65 3 3 3.24 3 3.99 3 13.28 10.73 21 20.01 21c.71 0 .99-.63.99-1.18v-3.45c0-.54-.45-.99-.99-.99z"/></svg>
+                            </span>
+                            <span> {{library.acf.phone}}</span>
+                        </a>
+                      <template v-for="contact in library.acf.contact">
+                        <person :key="contact.person.ID"
+                                :name="contact.person.post_title"
+                                :title="contact.title"
+                                type="organizer"
+                                :personObject="contact.person">
+                                </person>
+                      </template>
+                  </div>
+                <img :src="library.acf.building_image.url" class="flex-grow-0"/>
+                  
 
 
            </div>
@@ -272,16 +273,18 @@ export default {
       const time = moment();
       const today = time.day();
 
-      let closed = true;
+      let current = 'closed';
       if(today === weekday && !hours.closed){
-      const open = moment(hours.open, format);
-      const close = moment(hours.close, format);
-      closed = time.isBetween(open, close) ? false : true;
+        const open = moment(hours.open, format);
+        const close = moment(hours.close, format);
+        current = time.isBetween(open, close) ? 'open' : 'closed';
+        if(current ==='open' && close.diff(time, 'minutes') < 46){
+          current = "closing-soon"; 
+        }
       } 
 
-      closed = closed ? 'closed' : 'open';
 
-      return today==weekday ? `order-0 ${closed}`: weekday-today >0 ? 'order-'+ (weekday-today) : 'order-' + ((7-today) + weekday);
+      return today==weekday ? `order-0 ${current}`: weekday-today >0 ? 'order-'+ (weekday-today) : 'order-' + ((7-today) + weekday);
     },
 
     getOperatingHours(day, hours){
@@ -289,7 +292,6 @@ export default {
       return hours.closed 
                 ? `<span class='location__hours__day__name'>${day}</span> <span class='location__hours__day__hours--closed'>Closed</span></div>`
                 : `<span class='location__hours__day__name'>${day}</span> <span class='location__hours__day__hours'>${hours.open} - ${hours.close}</span></div>`;
-
     }
   },
   props: {
@@ -339,8 +341,11 @@ export default {
 .location__hours.order-0.closed:before{
   content: "Currently Closed";
   background-color: rgba($color-pink, .3);
-
 } 
+.location__hours.order-0.closing-soon:before{
+  content: "Closing Soon";
+  background-color:rgba($color-orange, .3);
+}
 .location__hours.order-0:before{
   display:block;
   text-align:center;
