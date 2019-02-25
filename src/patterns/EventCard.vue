@@ -1,6 +1,4 @@
 <template>
-
-    <div>
         <router-link class="d-block event link link--undecorated"
                      :to="`/events/${event.slug}`">
 
@@ -18,8 +16,6 @@
             </card>
 
         </router-link>
-
-    </div>
 
 </template>
 
