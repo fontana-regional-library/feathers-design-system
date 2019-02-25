@@ -44,7 +44,9 @@ export default {
 
         }
       }
-      return this.getImage(image);
+      console.log(image);
+     
+      return  this.getImage(image);
     }
   },
   data(){
@@ -101,6 +103,7 @@ export default {
 </script>
 <style lang="scss">
 .person__avatar{
+  flex: 0 0 100%;
     margin-left: 1rem;
     margin-right: 1rem;
     max-width: 64px;
