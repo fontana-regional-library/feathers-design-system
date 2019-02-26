@@ -16,6 +16,7 @@ articles: 'https://fontana.librarians.design/wp-json/wp/v2/posts',
 resources: 'https://fontana.librarians.design/wp-json/wp/v2/resources',
 services: 'https://fontana.librarians.design/wp-json/wp/v2/services?per_page=50',
 events: 'https://fontana.librarians.design/wp-json/wp/v2/events',
+userLocation: null
 };
 
 export default new Vuex.Store({
@@ -182,6 +183,25 @@ export default new Vuex.Store({
 
       return actionsByService;
     },
+    getContentByLibrary: state => (contentType, locationName) => {
+      let contents = [];
+
+      if (locationName !== 'all' && locationName !== 'headquarters') {
+        contents = state[contentType].filter(
+            page => page.acf.location 
+              ? page.acf.location.some(location => location.slug === locationName)
+              : null
+          );
+      } else if (locationName == 'headquarters') {
+        contents = state[contentType].filter(
+          page => page.acf.location == false ||
+            page.acf.location.some(location => location.slug === 'headquarters')
+        );
+      } else {
+        contents = state[contentType];
+      }
+      return contents;
+    },
     getContentByService: state => (contentType, serviceName = null, locationName = null) => {
       let contents;
       let contentsFilteredByService = [];
@@ -239,6 +259,10 @@ export default new Vuex.Store({
       return Number(state.eventCount);
     },
 
+    getLocationBySlug: state => (slug) => {
+      return state.locations.find(location => location.slug === slug)
+    },
+    
     /**
      * We can use `getRandomContentItem(services)` -- for example -- to return
      * a random service.
@@ -258,7 +282,9 @@ export default new Vuex.Store({
       ];
     },
 
-    getServiceBySlug: state => slug => state.services.find(service => service.slug === slug),
+    getServiceBySlug: state => (slug) => { 
+      return state.services.find(service => service.slug === slug);
+    },
   },
 
   mutations: {
@@ -330,6 +356,9 @@ export default new Vuex.Store({
           state[payload.contentType].push(payload.content[i]);
         }
       }
-    }
+    },
+    setUserLocation(state, location){
+      state.userLocation = location !== 'all' ? location : null;
+    },
   }
 });
