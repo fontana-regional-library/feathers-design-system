@@ -88,8 +88,9 @@
                                 :personObject="contact.person">
                                 </person>
                       </template>
+                      <img :src="library.acf.building_image.url" class="flex-grow-0"/>
                   </div>
-                <img :src="library.acf.building_image.url" class="flex-grow-0"/>
+                
                   
 
                       <router-link v-if="library.slug !== 'headquarters'" itemprop="branchOf" class="link"
