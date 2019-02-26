@@ -59,7 +59,7 @@
 
         <div class="col-md-10 d-md-flex m-auto pb-4 pl-0 pr-0 pt-4">
 
-          <div class="col-lg-8 p-0">
+          <div class="p-0">
 
             <Showcase collection-link="/collection"
                       :collection-items="collection"
@@ -86,7 +86,7 @@
 
           </div>
 
-          <div class="col-lg-4 p-0" v-if="secondaryCTA">
+          <div class="p-0" v-if="secondaryCTA">
             <template>
               <call-to-action class="ml-md-2"
                               :action="secondaryCTA.acf.action"
