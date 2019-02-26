@@ -203,7 +203,7 @@ export default {
                     /* : (a.acf.expire > b.acf.expire) ? -1 
                     : (b.acf.expire > a.acf.expire) ? 1 */:  0));
       } else {
-        ctas.shift();
+        ctas = ctas.slice(1);
       }
       /**
        * Check if they're all equally prioritized, if so return a random item.
