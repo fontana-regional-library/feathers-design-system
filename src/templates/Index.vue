@@ -4,12 +4,12 @@
 
     <main role="main">
 
-      <template v-for="(call, index) in callsToAction" v-if="index === 0">
-        <call-to-action :action="call.acf.action"
-                        :copy="call.acf.copy"
-                        :image="call.acf.image"
-                        :heading="call.acf.heading"
-                        :link="call.acf.link"></call-to-action>
+      <template v-if="primaryCTA">
+        <call-to-action :action="primaryCTA.acf.action"
+                        :copy="primaryCTA.acf.copy"
+                        :image="primaryCTA.acf.image"
+                        :heading="primaryCTA.acf.heading"
+                        :link="primaryCTA.acf.link"></call-to-action>
       </template>
 
       <section class="background--blue-alternate library__section pb-3 pl-md-2 pb-md-4 pt-md-4 pr-md-2">
@@ -86,12 +86,15 @@
 
           </div>
 
-          <div class="ml-2 p-0">
-            <call-to-action action="Call to Action"
-                            copy="Data tells a powerful story --
-                      about your content, who reads it, and what's possible"
-                            image="https://source.unsplash.com/random"
-                            heading="Watch the eclipse with us"></call-to-action>
+          <div class="p-0" v-if="secondaryCTA">
+            <template>
+              <call-to-action class="ml-md-2"
+                              :action="secondaryCTA.acf.action"
+                              :copy="secondaryCTA.acf.copy"
+                              :image="secondaryCTA.acf.image"
+                              :heading="secondaryCTA.acf.heading"
+                              :link="secondaryCTA.acf.link"></call-to-action>
+            </template>
           </div>
 
 
@@ -136,11 +139,26 @@ export default {
         'callsToAction',
         'any',
         this.location,
-      );
+      ).sort((a,b) => (a.acf.priority > b.acf.priority) ? 1
+                    : ((b.acf.priority > a.acf.priority) ? -1 
+                    : /* (a.acf.expire > b.acf.expire) ? -1 
+                    : (b.acf.expire > a.acf.expire) ? 1:   */0));
     },
 
     collection() {
       return this.$store.state.collection;
+    },
+
+    events() {
+      return this.$store.state.events;
+    },
+
+    post() {
+      return this.$store.state.posts[0];
+    },
+
+    primaryCTA(){
+      return this.callsToAction[0];
     },
 
     randomCollectionItem() {
@@ -165,17 +183,45 @@ export default {
       ];
     },
 
-    events() {
-      return this.$store.state.events;
-    },
+    secondaryCTA(){
+      let ctas = this.callsToAction;
+      /*
+      * if there's no more 'location specific' content,
+      * let's look for regional content & filter out primaryCTA
+      * then return a random item for the secondary CTA.
+      */
+      if(ctas.length < 2){
+        ctas = this.$store.state.callsToAction.filter(
+          page => (!page.acf.location ||
+              page.acf.location == false ||
+              page.acf.location.some(
+                location => location.slug === 'headquarters')) &&
+                page.id !== ctas[0].id
+        ).sort(
+          (a,b) => (a.acf.priority > b.acf.priority) ? 1
+                    : ((b.acf.priority > a.acf.priority) ? -1 
+                    /* : (a.acf.expire > b.acf.expire) ? -1 
+                    : (b.acf.expire > a.acf.expire) ? 1 */:  0));
+      } else {
+        ctas = ctas.slice(1);
+      }
+      /**
+       * Check if they're all equally prioritized, if so return a random item.
+       */
+      const priorities = Array.from(new Set(ctas.map(item => item.acf.priority)))
+        .map(priority => {
+          return { 
+            item: ctas.find(item => item.acf.priority === priority ).acf.priority};
+      });
 
-    post() {
-      return this.$store.state.posts[0];
+      let num = priorities.length < 2 ? Math.floor(Math.random() * ctas.length) : 0;
+
+      return ctas[num];
     },
 
     services() {
       return this.$store.state.services;
-    },
+    },    
   },
 
   props: {

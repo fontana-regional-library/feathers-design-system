@@ -182,29 +182,45 @@ export default new Vuex.Store({
 
       return actionsByService;
     },
+
     getContentByService: state => (contentType, serviceName = null, locationName = null) => {
       let contents;
       let contentsFilteredByService = [];
 
       if (locationName && locationName !== 'all') {
         contents = state[contentType].filter(
-          page => page.acf.location.some(location => location.slug === locationName)
-        );
-      } else {
+            page => page.acf.location 
+              ? page.acf.location.some(location => location.slug === locationName)
+              : null
+          );
+
+        /**
+         * If there's no location specific content, let's populate 
+         * content from region-wide content
+         */
+        if(contents.length == 0 ){
+          contents = state[contentType].filter(
+              page => !page.acf.location ||
+              page.acf.location == false ||
+              page.acf.location.some(
+                location => location.slug === 'headquarters')
+            );
+        }
+      } 
+      
+      if(!contents || contents.length <1){
         contents = state[contentType];
       }
-      
+
       if (serviceName && serviceName !== 'any') {
-        contents.forEach(function(content){
-          if (content.acf.services != null && content.acf.services !== false){ 
-          contentsFilteredByService.push(content);
-          }
-        });
-        contentsFilteredByService = contentsFilteredByService.filter(
-          page => page.acf.services.some(service => service.slug === serviceName)
+        contentsFilteredByService = contents.filter(
+          page => page.acf.services
+            ? page.acf.services.some(service => service.slug === serviceName)
+            : null
         );
       }
-      return serviceName ? contentsFilteredByService : contents;
+      
+      return (serviceName && serviceName !== 'any')? contentsFilteredByService : contents;
     },
 
     getEvents: state => (dateString = null, locationName = null) => {
