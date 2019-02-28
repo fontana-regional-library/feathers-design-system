@@ -55,13 +55,13 @@
             <template slot="label">{{ currentLocation }}</template>
             <template slot="items">
 
-                <router-link :to="setLocationInQueryParameter('all')">All Libraries</router-link>
+                <router-link :to="{query:{location:'all'}}"><span @click="setLocation('all')">All Libraries</span></router-link>
                 <router-link
                   class="d-block dropdown__menu__item link link--undecorated mb-1 mt-1 text--underlined"
                  :key="location.id"
-                 :to="setLocationInQueryParameter(`${location.slug}`)"
+                 :to="{query: {location: `${location.slug}`}}"
                  v-for="location in locations">
-                    {{ location.name }}
+                     <span @click="setLocation(location.slug)">{{ location.name }}</span>
                 </router-link>
             </template>
         </Dropdown>
@@ -87,7 +87,14 @@ export default {
      * if it's present in the url.
      */
     currentLocation() {
-      const locationSlugInUrl = this.$route.query.location;
+      let locationSlugInUrl = this.$route.query.location;
+
+      if(!locationSlugInUrl){
+        locationSlugInUrl = this.$store.state.userLocation;
+      } else if (!this.storedLocation){
+        this.$store.commit('setUserLocation', locationSlugInUrl);
+      }
+
       const location = this.locations.find(location => location.slug === locationSlugInUrl);
 
       return (location ? location.name : 'All Libraries');
@@ -96,14 +103,16 @@ export default {
     locations() {
       return this.$store.state.locations;
     },
+
+    storedLocation(){
+      return this.$store.state.userLocation;
+    },
   },
 
   methods: {
-    setLocationInQueryParameter(locationSlug) {
-      return {
-        query: Object.assign({}, this.$route.query, { location: `${locationSlug}` }),
-      };
-    },
+    setLocation(slug){
+      this.$store.commit('setUserLocation', slug);
+    }
   },
 
   mounted() {

@@ -33,6 +33,7 @@ export default new Vuex.Store({
     resources: [],
     services: [],
     eventCount: 0,
+    userLocation: null
   },
 
   actions: {
@@ -330,6 +331,9 @@ export default new Vuex.Store({
           state[payload.contentType].push(payload.content[i]);
         }
       }
-    }
+    },
+    setUserLocation(state, location){
+      state.userLocation = location !== 'all' ? location : null;
+    },
   }
 });
