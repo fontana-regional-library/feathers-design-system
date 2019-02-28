@@ -92,22 +92,20 @@ export default {
 
   computed: {
     isCatalogSearch() {
-      return this.searchAction.toLowerCase() === 'catalog'
-        || this.searchAction.toLowerCase() === 'index';
+      return this.action.toLowerCase() === 'catalog'
+        || this.action.toLowerCase() === 'index';
     },
 
     isEventSearch() {
-      return this.searchAction.toLowerCase() === 'events'
-        || this.searchAction.toLowerCase() === 'events-slug';
+      return this.action.toLowerCase() === 'events';
     },
 
     isEverythingSearch() {
-      return this.searchAction === 'everything';
+      return this.action === 'everything';
     },
 
     isServicesSearch() {
-      return this.searchAction.toLowerCase() === 'services'
-        || this.searchAction.toLowerCase() === 'events-slug';
+      return this.action.toLowerCase() === 'services';
     },
 
     locationFilter() {
@@ -119,13 +117,19 @@ export default {
     return {
       searchFormAction: 'https://www.nccardinal.org/eg/opac/results',
       searchQuery: '',
+      action: this.searchAction,
     };
   },
 
   methods: {
     resetSearchAction() {
-      const routeName = this.$route.name.toLowerCase();
-      this.searchAction = routeName;
+      if(this.$route.name){
+        const routeName = this.$route.name.toLowerCase();
+        this.action = routeName;
+      } else if (this.$route.path) {
+        const routeName = this.$route.path.split('/')[1].toLowerCase();
+        this.action = routeName;
+      }
     },
 
     search() {
@@ -181,19 +185,19 @@ export default {
     },
 
     setCatalogSearch() {
-      this.$set(this, 'searchAction', 'catalog');
+      this.$set(this, 'action', 'catalog');
     },
 
     setEventSearch() {
-      this.$set(this, 'searchAction', 'events');
+      this.$set(this, 'action', 'events');
     },
 
     setEverythingSearch() {
-      this.$set(this, 'searchAction', 'everything');
+      this.$set(this, 'action', 'everything');
     },
 
     setServicesSearch() {
-      this.$set(this, 'searchAction', 'services');
+      this.$set(this, 'action', 'services');
     },
   },
 
