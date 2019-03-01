@@ -42,7 +42,8 @@ Through partnerships in the community, we are able to bring you art and historic
                                 <input class="form-control"
                                        id="eventSidebarFilter"
                                        type="text"
-                                       v-model="filter">
+                                       v-model="q"
+                                       @click="queryClick">
                             </div>
 
                             <div class="form-group">
@@ -53,7 +54,8 @@ Through partnerships in the community, we are able to bring you art and historic
 
                                 <select class="form-control"
                                         id="eventSidebarLocation"
-                                        v-model="location">
+                                        v-model="library"
+                                        >
 
                                     <option :key="location.id"
                                             :value="location.slug"
@@ -72,13 +74,13 @@ Through partnerships in the community, we are able to bring you art and historic
 
                     <div class="col col-lg-8">
 
-                        <div class="alert alert--primary mb-3 pl-4 pr-4" v-if="filter || location">
+                        <div class="alert alert--primary mb-3 pl-4 pr-4" v-if="q || library">
                             <heading class="h3 text--dark text--serif" level="h2">Search</heading>
                             <p class="channel__subtitle mt-1 text--dark text--sans"
-                               v-if="filter || location">
+                               v-if="q || library">
                                 Here is everything we can find that matches your search
-                                {{ filter ? 'for' : '' }} <mark class="mark">{{ filter }}</mark>
-                                <template v-if="location">happening at <router-link class="link" :to="`location/${location.slug}`">{{ locationDetails.name }}</router-link></template>.
+                                {{ q ? 'for' : '' }} <mark class="mark">{{ q }}</mark>
+                                <template v-if="library && locationDetails">happening at <router-link class="link" :to="`location/${locationDetails.slug}`">{{ locationDetails.name }}</router-link></template>.
                             </p>
 
                             <p class="channel__subtitle text--dark text--large" v-if="selectedDate">
@@ -86,21 +88,25 @@ Through partnerships in the community, we are able to bring you art and historic
                             </p>
                         </div>
 
-                        <template v-for="event in filteredEvents">
+                        <template  v-for="event in filteredEvents[currentPage-1]">
 
                             <event-card class="card--background-gray"
-                                        :event="event" />
+                                        :event="event"
+                                        :key="event.id"
+                                        :class="{ current: `${event.start_date_details.year}-${event.start_date_details.month}-${event.start_date_details.day}` === selectedDate}"/>
 
                         </template>
 
-                        <template v-if="events.length === 0">
+                        <template v-if="eventCount === 0">
                             <p>Sorry, we couldn't find any events.</p>
                         </template>
-                        <a class="button button--large button--pink"
-                        v-if="events.length < eventCount"
-                          @click="getMoreEvents();">
-                            Load More... 
-                        </a>
+                        
+                        <pagination
+                        v-if="eventCount > 0"
+                        :key="total"
+                        :total="pageTotal"
+                        v-model="paged"></pagination>
+                        
 
                     </div>
 
@@ -114,6 +120,9 @@ Through partnerships in the community, we are able to bring you art and historic
 <script>
 import flatpickr from 'flatpickr';
 import EventCard from '../patterns/EventCard.vue';
+import Pagination from '../elements/Pagination.vue';
+import { chunk } from 'lodash';
+import { throttle } from 'lodash';
 
 window.axios = require('axios');
 
@@ -122,21 +131,80 @@ export default {
 
   components: {
     EventCard,
+    Pagination
   },
-
-  computed: {
-    events() {
-      return this.$store.getters.getEvents(this.selectedDate, this.location);
+  watch:{
+    $route() {
+      if(this.$route.query.location && this.$route.query.location !== "all"){
+        this.library = this.$route.query.location;
+      }
     },
-
-    eventCount() {
-      return this.$store.getters.getEventCount();
+    q: function(newValue, oldValue){
+      if(oldValue !== newValue){
+        this.queryReset();
+        this.queryEvents();
+      }
+      if(!newValue && (this.library || this.selectedDate)){
+        this.getMoreEvents();
+      }
+    },
+    library(){
+      this.currentPage=1;
+      if(!this.library || this.library=="all"){
+        this.total = this.$store.getters.getEventCount();
+      } else {
+        this.apiPage=1;
+        this.getMoreEvents();
+      }
+    },
+    paged: function(newValue, oldValue){
+      if(this.currentPage > 4 && this.eventCount < this.total && ((this.currentPage*this.perPage)+10 > (this.apiPage*this.apiPerPage) )){
+        this.apiPage = this.eventCount/this.apiPerPage < 1 ? 1 : this.eventCount % this.apiPerPage === 0 ? (this.eventCount/this.apiPerPage) + 1 : Math.ceil(this.eventCount/this.apiPerPage); 
+        }
+    },
+    apiPage: function(newValue, oldValue){
+      if(newValue !== oldValue){
+        this.getMoreEvents();
+      }
+    },
+    selectedDate(){
+      if(this.selectedDate && this.selectedDate !== null){
+        this.queryReset();
+        let e = this.filterEvents('get');
+        this.total = e.filter(
+            event =>
+              `${event.start_date_details.year}-${
+                event.start_date_details.month
+              }-${event.start_date_details.day}` >= this.selectedDate
+          ).length;
+      }
+    }
+  },
+  computed: {
+    paged: {
+      get: function() {
+        return this.currentPage>1?this.currentPage:1;
+      },
+      set: function(newValue) {
+        this.currentPage = newValue;
+      },   
+    },
+    pageTotal(){
+      if(!this.total){
+        this.total = this.eventCount;
+      }
+      let num = Math.ceil(this.total/this.perPage);
+      return num;
+    },
+    events() {
+      let e = this.filterEvents();
+      return e;
     },
 
     locationDetails() {
-      return this.location
+      return this.library
         ? this.$store.state.locations.find(
-            location => location.slug === this.location
+            location => location.slug === this.library
           )
         : null;
     },
@@ -146,48 +214,146 @@ export default {
     },
 
     filteredEvents() {
-      if (!this.filter) {
-        return this.events;
+      if (!this.q) {
+        let e = this.events;
+        this.eventCount = e.length;
+        return chunk(e, this.perPage);
       }
 
-      return this.events.filter(event =>
-        event.title.toLowerCase().includes(this.filter)
-      );
+      const value = this.q.toLowerCase();
+      let e = this.events.filter(function(event){ 
+                        var res = false;
+                        if (event.title.toLowerCase().indexOf(value)!== -1 || event.content.toLowerCase().indexOf(value)!== -1) res = true;
+                        return res;
+                    });
+      this.eventCount = e.length;
+      return chunk(e, this.perPage);
     }
   },
 
   data() {
     return {
       selectedDate: null,
-      eventsUrl: 'https://fontana.librarians.design/wp-json/tribe/events/v1/events?per_page=20&page=',
-      eventsData: {
-        per_page:20,
-        page: 2,
-      },
+      library: this.location,
+      eventsContainer:[],
+      total:0,
+      apiPage:1,
+      apiPerPage:30,
+      apiLoaded:false,
+      q: this.filter,
+      currentPage: 1,
+      perPage:5,
+      eventCount: 0,    
     };
   },
 
   methods: {
     clearSelectedDate() {
+      const now = new Date();
+      this.calendar.clear();
+      this.calendar.jumpToDate(now);
       this.selectedDate = null;
-      this.filter = null;
-      this.location = null;
+      this.q = null;
+      this.library = null;
+      this.currentPage = 1;
+      this.apiPage=1;
+      this.total = this.$store.getters.getEventCount();
     },
+    filterEvents(g=null){
+      if(g == 'get'){
+        this.getMoreEvents();
+      }
 
-    getMoreEvents() {
-      axios.get(this.eventsUrl, {params: this.eventsData})
-      .then((response) =>{
-        this.$store.commit('addMoreEvents', response.data.events);
-        this.eventsData.page++;
-      })
-      .catch( (error)=>{
-        console.log(error);
-      })
+      let e = this.eventsContainer;
+
+      if (this.library && this.library !== 'all') {
+        e = e.filter(
+        event => event.acf.location.some(location => location.slug === this.library)
+        );
+      } 
+
+      if (this.selectedDate && this.selectedDate !== null) {
+        e = e.filter(
+          event =>
+            `${event.start_date_details.year}-${
+              event.start_date_details.month
+            }-${event.start_date_details.day}` >= this.selectedDate
+        );
+      } 
+
+      return e;
+    },
+    queryEvents: _.throttle(function(){
+      if(this.eventCount < this.total){
+        this.fetch();
+      }
+    }, 2500, {'leading':false,'trailing':true}),
+    getMoreEvents(){
+      if(this.apiLoaded === false){
+        this.fetch();
+      }
+      if(this.apiLoaded === true && (((this.q || this.library || this.selectedDate) && this.apiPage==1) || (this.eventCount < this.total))){
+        this.fetch();
+      }
+    },
+    fetch(){
+      let fetchUrl = `https://fontana.librarians.design/wp-json/wp/v2/events?per_page=${this.apiPerPage}`;
+        fetchUrl += !this.q ? "" : `&search=${this.q}`;
+        fetchUrl += ( this.eventCount && ( this.eventCount < this.total )) ? `&page=${this.apiPage}` : '';
+        fetchUrl += this.locationDetails ? `&locations=${this.locationDetails.id}` : '';
+        fetchUrl += !this.selectedDate ? '' : `&start_date=${this.selectedDate}`;
+      axios.get(fetchUrl)
+        .then((response) =>{
+          this.total = Number(response.headers['x-wp-total']);
+          this.addEvents(response.data);
+          this.apiLoaded=true;
+        })
+        .catch( (error)=>{
+          console.log(error);
+        })
+    },
+    addEvents(data){
+      if(data.length === 0){
+        if(this.apiPage === 1){
+          this.total = 0;
+        }
+        return;
+      }
+      
+      if(!this.eventsContainer || this.eventsContainer.length == 0){
+        this.eventsContainer = data;
+      } else{
+        for (let i=0; i < data.length; i++){
+          const index = this.eventsContainer.findIndex(item => item.id === data[i].id)
+          if (index === -1){ 
+            this.eventsContainer.push(data[i]);
+          }
+        }
+      }
+      if(this.eventsContainer.length > 0){
+          this.eventsContainer.sort(function(a,b){
+              let date1 = new Date(a.start_date);
+              let date2 = new Date(b.start_date);
+              return date1.getTime() - date2.getTime()});
+        }
+    },
+    queryReset(){
+      this.apiPage=1;
+      this.currentPage=1;
+    },
+    queryClick(){
+      if(!this.q){
+        this.apiPage=1;
+      }
     },
   },
-
+  beforeMount(){
+    this.total = this.$store.getters.getEventCount();
+    this.eventsContainer = this.$store.getters.getEvents();
+    this.getMoreEvents();
+  },
   mounted() {
-    flatpickr("#test", {
+    this.calendar = flatpickr("#test", {
       inline: true
     });
   },
@@ -205,6 +371,13 @@ export default {
 </script>
 
 <style lang="scss">
+.current .card__badge__explainer {
+    font-weight: 700;
+    border: 1px dotted rgba(71,160,255,.5);
+    padding: 5px;
+    margin-right: -12px;
+    background-color: rgba(255, 255, 255, 0.5);
+}
 .flatpickr-calendar {
   opacity: 0;
   display: none;
