@@ -56,7 +56,7 @@ export default {
      * @returns {string | null}
      */
     getExcerpt(event) {
-      const excerpt = event.excerpt ? event.excerpt : event.description;
+      const excerpt = event.excerpt ? event.excerpt : event.content;
       const excerptContainer = document.createElement('div');
 
       excerptContainer.innerHTML = excerpt;

@@ -20,7 +20,7 @@
                                  :location="eventObject.venue.venue"
                                  :start="new Date(`${eventObject.start_date}`)"
                                  :end="new Date(`${eventObject.end_date}`)"
-                                 :details="eventObject.description"
+                                 :details="eventObject.content"
                                  inline-template>
 
                     <div class="mb-3">
