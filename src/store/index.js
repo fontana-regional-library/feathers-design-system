@@ -16,7 +16,7 @@ articles: 'https://fontana.librarians.design/wp-json/wp/v2/posts',
 resources: 'https://fontana.librarians.design/wp-json/wp/v2/resources',
 services: 'https://fontana.librarians.design/wp-json/wp/v2/services?per_page=50',
 events: 'https://fontana.librarians.design/wp-json/wp/v2/events',
-menuItems: 'https://fontana.librarians.design/wp-json/menus/v1/menus/top',
+menuItems: 'https://fontana.librarians.design/wp-json/fontana/v1/menus/top',
 };
 
 export default new Vuex.Store({
