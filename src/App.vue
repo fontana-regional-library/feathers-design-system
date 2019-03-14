@@ -10,6 +10,10 @@
 
       </router-link>
 
+      <heading class="text--white text--serif" level="h1">
+          Fontana Regional Library
+      </heading>
+
       <Menu />
 
     </header>
@@ -21,6 +25,7 @@
     <app-footer />
 
   </div>
+
 </template>
 
 <script>
@@ -47,7 +52,8 @@ export default {
     this.$store.dispatch("getPages");
     this.$store.dispatch("getCollection");
     this.$store.dispatch("getPosts");
-	this.$store.dispatch("getArticles");
+	  this.$store.dispatch("getArticles");
+    this.$store.dispatch("getMenuItems");
   }
 };
 </script>

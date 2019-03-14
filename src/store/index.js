@@ -10,12 +10,13 @@ callsToAction: 'https://fontana.librarians.design/wp-json/wp/v2/calls-to-action'
 collection: 'https://fontana.librarians.design/wp-json/wp/v2/collection?_embed',
 featuredCollections: 'https://fontana.librarians.design/wp-json/wp/v2/featured-collections',
 locations: 'https://fontana.librarians.design/wp-json/wp/v2/locations',
-pages: 'https://fontana.librarians.design/wp-json/wp/v2/pages',
+pages: 'https://fontana.librarians.design/wp-json/wp/v2/pages?per_page=100',
 posts: 'https://public-api.wordpress.com/rest/v1.1/sites/fontanalib.wordpress.com/posts/?number=10',
 articles: 'https://fontana.librarians.design/wp-json/wp/v2/posts',
 resources: 'https://fontana.librarians.design/wp-json/wp/v2/resources',
 services: 'https://fontana.librarians.design/wp-json/wp/v2/services?per_page=50',
 events: 'https://fontana.librarians.design/wp-json/wp/v2/events',
+menuItems: 'https://fontana.librarians.design/wp-json/fontana/v1/menus/top',
 };
 
 export default new Vuex.Store({
@@ -32,6 +33,7 @@ export default new Vuex.Store({
     articles: [],
     resources: [],
     services: [],
+    menuItems: [],
     eventCount: 0,
   },
 
@@ -111,6 +113,7 @@ export default new Vuex.Store({
           });
       });
     },
+
     getArticles({ commit }) {
       return new Promise(resolve => {
         axios
@@ -121,6 +124,7 @@ export default new Vuex.Store({
           });
       });
     },
+
     getResources({ commit }) {
       return new Promise(resolve => {
         axios
@@ -143,6 +147,17 @@ export default new Vuex.Store({
       });
     },
 
+    getMenuItems({ commit }) {
+      return new Promise(resolve => {
+        axios
+          .get(urls.menuItems)
+          .then(({ data }) => {
+            commit("addMenuItemsToState", data);
+            resolve();
+          });
+      });
+    },
+
     getUpcomingEvents({ commit }) {
       return new Promise(resolve => {
         axios
@@ -156,7 +171,6 @@ export default new Vuex.Store({
     },
 
     getMoreContent({commit}, serviceQuery) {
-  
       return new Promise(resolve => {
         axios
           .get(urls[serviceQuery.contentType] + serviceQuery.urlParams)
@@ -182,6 +196,7 @@ export default new Vuex.Store({
 
       return actionsByService;
     },
+
     getContentByService: state => (contentType, serviceName = null, locationName = null) => {
       let contents;
       let contentsFilteredByService = [];
@@ -258,6 +273,8 @@ export default new Vuex.Store({
       ];
     },
 
+    getPageBySlug: state => slug => state.pages.find(page => page.slug === slug),
+
     getServiceBySlug: state => slug => state.services.find(service => service.slug === slug),
   },
 
@@ -291,17 +308,17 @@ export default new Vuex.Store({
     },
 
     addArticlesToState(state, articles) {
-
       state.articles = articles;
     },
 
+    addEventToState(state, event) {
+      state.events.push(event);
+    },
+  
     addEventsToState(state, events) {
       state.events = events;
     },
-    addEventCount(state, eventCount) {
-      state.eventCount = eventCount;
-    },
-
+    
     addEventCount(state, eventCount) {
       state.eventCount = eventCount;
     },
@@ -319,8 +336,16 @@ export default new Vuex.Store({
       state.resources = resources;
     },
 
+    addServiceToState(state, service) {
+      state.services.push(service);
+    },
+  
     addServicesToState(state, services) {
       state.services = services;
+    },
+
+    addMenuItemsToState(state, menuItems) {
+      state.menuItems = menuItems;
     },
 
     addMoreContent(state, payload) {
